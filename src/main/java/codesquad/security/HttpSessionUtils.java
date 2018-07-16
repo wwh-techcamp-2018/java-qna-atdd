@@ -36,4 +36,8 @@ public class HttpSessionUtils {
 
         return (User) session.getAttribute(USER_SESSION_KEY);
     }
+
+    public static void setUserToSession(User user, HttpSession session) {
+        session.setAttribute(USER_SESSION_KEY, user);
+    }
 }
