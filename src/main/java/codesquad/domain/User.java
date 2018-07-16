@@ -114,6 +114,28 @@ public class User extends AbstractEntity {
         return false;
     }
 
+    public boolean isSamePassword(String password) {
+        return this.password.equals(password);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        User user = (User) o;
+        return Objects.equals(userId, user.userId) &&
+                Objects.equals(password, user.password) &&
+                Objects.equals(name, user.name) &&
+                Objects.equals(email, user.email);
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(super.hashCode(), userId, password, name, email);
+    }
+
     private static class GuestUser extends User {
         @Override
         public boolean isGuestUser() {
