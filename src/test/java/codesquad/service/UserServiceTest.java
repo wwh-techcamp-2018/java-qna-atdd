@@ -39,6 +39,7 @@ public class UserServiceTest {
         userService.login("sanjigi", "password");
     }
 
+
     @Test(expected = UnAuthenticationException.class)
     public void login_failed_when_mismatch_password() throws Exception {
         User user = new User("sanjigi", "password", "name", "javajigi@slipp.net");

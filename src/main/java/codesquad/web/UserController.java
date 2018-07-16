@@ -1,5 +1,6 @@
 package codesquad.web;
 
+import codesquad.UnAuthenticationException;
 import codesquad.domain.User;
 import codesquad.security.LoginUser;
 import codesquad.service.UserService;
@@ -51,4 +52,14 @@ public class UserController {
         return "redirect:/users";
     }
 
+    @GetMapping("/login_failed")
+    public String loginFailed() {
+        return "/user/login_failed";
+    }
+
+    @PostMapping("/login")
+    public String login(User user) throws UnAuthenticationException {
+        userService.login(user.getUserId(), user.getPassword());
+        return "redirect:/users";
+    }
 }
