@@ -1,6 +1,6 @@
 package codesquad.domain;
 
-import codesquad.UnAuthorizedException;
+import codesquad.exception.UnAuthorizedException;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import support.domain.AbstractEntity;
 
@@ -112,6 +112,10 @@ public class User extends AbstractEntity {
     @JsonIgnore
     public boolean isGuestUser() {
         return false;
+    }
+
+    public boolean verifyPassword(String password) {
+        return this.password.equals(password);
     }
 
     private static class GuestUser extends User {
