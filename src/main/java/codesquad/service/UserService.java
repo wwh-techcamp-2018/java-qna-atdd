@@ -1,9 +1,12 @@
 package codesquad.service;
 
-import codesquad.UnAuthenticationException;
-import codesquad.UnAuthorizedException;
+import codesquad.exception.UnAuthenticationException;
+import codesquad.exception.UnAuthorizedException;
 import codesquad.domain.User;
 import codesquad.domain.UserRepository;
+import codesquad.web.UserController;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,6 +15,9 @@ import java.util.List;
 
 @Service("userService")
 public class UserService {
+
+    private static final Logger log = LoggerFactory.getLogger(UserController.class);
+
     @Resource(name = "userRepository")
     private UserRepository userRepository;
 
@@ -37,7 +43,7 @@ public class UserService {
     }
 
     public User login(String userId, String password) throws UnAuthenticationException {
-        // TODO 로그인 기능 구현
-        return null;
+        User loginUser = userRepository.findByUserId(userId).filter(user -> user.verifyPassword(password)).orElseThrow(UnAuthenticationException::new);
+        return loginUser;
     }
 }
