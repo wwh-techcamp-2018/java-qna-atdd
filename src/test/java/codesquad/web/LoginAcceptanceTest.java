@@ -24,19 +24,19 @@ public class LoginAcceptanceTest extends AcceptanceTest {
     private HtmlFormDataBuilder htmlFormDataBuilder;
 
     @Before
-    public void formBuilderSet(){
+    public void formBuilderSet() {
         htmlFormDataBuilder = HtmlFormDataBuilder.urlEncodedForm();
     }
 
     @Test
-    public void login_성공(){
+    public void login_성공() {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(Arrays.asList(MediaType.TEXT_HTML));
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-        String userId=  "javajigi";
+        String userId = "javajigi";
         MultiValueMap<String, Object> params = new LinkedMultiValueMap<>();
-        params.add("userId", userId );
+        params.add("userId", userId);
         params.add("password", "test");
         HttpEntity<MultiValueMap<String, Object>> request = new HttpEntity<MultiValueMap<String, Object>>(params, headers);
 
@@ -53,13 +53,13 @@ public class LoginAcceptanceTest extends AcceptanceTest {
     }
 
     @Test
-    public void login_실패(){
+    public void login_실패() {
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(Arrays.asList(MediaType.TEXT_HTML));
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-        String userId=  "javajigi";
+        String userId = "javajigi";
         MultiValueMap<String, Object> params = new LinkedMultiValueMap<>();
-        params.add("userId", userId );
+        params.add("userId", userId);
         params.add("password", "fail");
         HttpEntity<MultiValueMap<String, Object>> request = new HttpEntity<MultiValueMap<String, Object>>(params, headers);
 
@@ -74,19 +74,19 @@ public class LoginAcceptanceTest extends AcceptanceTest {
     }
 
     @Test
-    public void htmlFormDataBuilder_login성공(){
-        htmlFormDataBuilder.addParameter("userId", "javajigi")
-                .addParameter("password", "test");
-        HttpEntity<MultiValueMap<String, Object>> request = htmlFormDataBuilder.build();
+    public void htmlFormDataBuilder_login성공() {
+        HttpEntity<MultiValueMap<String, Object>> request = htmlFormDataBuilder.addParameter("userId", "javajigi")
+                .addParameter("password", "test")
+                .build();
         ResponseEntity<String> response = template().postForEntity("/users/in", request, String.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FOUND);
     }
 
     @Test
-    public void htmlFormDataBuilder_login실패(){
-        htmlFormDataBuilder.addParameter("userId", "javajigi")
-                            .addParameter("password", "fail");
-        HttpEntity<MultiValueMap<String, Object>> request = htmlFormDataBuilder.build();
+    public void htmlFormDataBuilder_login실패() {
+        HttpEntity<MultiValueMap<String, Object>> request = htmlFormDataBuilder.addParameter("userId", "javajigi")
+                .addParameter("password", "fail")
+                .build();
         ResponseEntity<String> response = template().postForEntity("/users/in", request, String.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     }

@@ -59,11 +59,11 @@ public class UserAcceptanceTest extends AcceptanceTest {
     @Test
     public void create_formBuilder() throws Exception {
         String userId = "testuser2";
-        htmlFormDataBuilder.addParameter("userId", userId)
+        HttpEntity<MultiValueMap<String, Object>> request = htmlFormDataBuilder.addParameter("userId", userId)
                 .addParameter("password", "password")
                 .addParameter("name", "자아바지기")
-                .addParameter("email", "jaaavajigi@slipp.net");
-        HttpEntity<MultiValueMap<String, Object>> request = htmlFormDataBuilder.build();
+                .addParameter("email", "jaaavajigi@slipp.net")
+                .build();
         ResponseEntity<String> response = template().postForEntity("/users", request, String.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FOUND);
         assertThat(userRepository.findByUserId(userId).isPresent()).isTrue();
@@ -118,11 +118,11 @@ public class UserAcceptanceTest extends AcceptanceTest {
     }
 
     private ResponseEntity<String> update_formBuilder(TestRestTemplate template) throws Exception {
-        htmlFormDataBuilder.addParameter("_method", "put")
+        HttpEntity<MultiValueMap<String, Object>> request = htmlFormDataBuilder.addParameter("_method", "put")
                 .addParameter("password", "test")
                 .addParameter("name", "자바지기2")
-                .addParameter("email", "javajigi@slipp.net");
-        HttpEntity<MultiValueMap<String, Object>> request = htmlFormDataBuilder.build();
+                .addParameter("email", "javajigi@slipp.net")
+                .build();
         //String.format("/users/%d", defaultUser().getId())
         return template.postForEntity(String.format("/users/%d", defaultUser().getId()), request, String.class);
     }
