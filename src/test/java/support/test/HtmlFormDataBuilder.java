@@ -20,7 +20,7 @@ public class HtmlFormDataBuilder {
     public HtmlFormDataBuilder delete() {
         return this.addParameter("_method", "delete");
     }
-
+  
     public HtmlFormDataBuilder addParameter(String key, Object value) {
         this.params.add(key, value);
         return this;

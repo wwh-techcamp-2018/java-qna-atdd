@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import javax.naming.AuthenticationException;
 import java.util.List;
 
 @Service("userService")
@@ -35,7 +36,7 @@ public class UserService {
     public List<User> findAll() {
         return userRepository.findAll();
     }
-
+  
     public User login(String userId, String password) throws LoginFailException {
         return userRepository.findByUserId(userId)
                 .filter(u -> u.matchPassword(password))
