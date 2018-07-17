@@ -1,5 +1,6 @@
 package codesquad.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import support.domain.AbstractEntity;
 import support.domain.UrlGeneratable;
 
@@ -13,6 +14,7 @@ public class Answer extends AbstractEntity implements UrlGeneratable {
     private User writer;
 
     @ManyToOne
+    @JsonIgnore
     @JoinColumn(foreignKey = @ForeignKey(name = "fk_answer_to_question"))
     private Question question;
 
@@ -63,8 +65,16 @@ public class Answer extends AbstractEntity implements UrlGeneratable {
         return writer.equals(loginUser);
     }
 
+    public void writeBy(User user) {
+        this.writer = user;
+    }
+
     public boolean isDeleted() {
         return deleted;
+    }
+
+    public void delete() {
+        this.deleted = true;
     }
 
     @Override

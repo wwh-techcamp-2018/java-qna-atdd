@@ -38,10 +38,9 @@ public class UserService {
     }
 
     public User login(String userId, String password) throws UnAuthenticationException {
-        User user = userRepository.findByUserId(userId).orElseThrow(() -> new UnAuthenticationException("유저 정보를 찾을 수 없습니다."));
-        if(!user.matchPassword(password)) {
-            throw new UnAuthenticationException("비밀번호가 틀렸습니다.");
-        }
+        User user = userRepository.findByUserId(userId)
+                .filter(u -> u.matchPassword(password))
+                .orElseThrow(() -> new UnAuthenticationException("유저 정보를 찾을 수 없습니다."));
         return user;
     }
 }
