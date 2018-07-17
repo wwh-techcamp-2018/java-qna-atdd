@@ -12,7 +12,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -79,17 +79,16 @@ public class QnaServiceTest {
         expectedQuestion.setId(original.getId());
         expectedQuestion.writeBy(original.getWriter());
         return expectedQuestion;
-
     }
 
     @Test
-    public void deleteQuestion() throws CannotDeleteException {
+    public void deleteQuestion() {
         qnaService.delete(user, question.getId());
         assertThat(question.isDeleted()).isEqualTo(true);
         assertThat(question.getAnswers().stream().allMatch(Answer::isDeleted)).isEqualTo(true);
     }
 
-    @Test(expected = CannotDeleteException.class)
+    @Test(expected = UnAuthorizedException.class)
     public void deleteQuestionFail() throws CannotDeleteException {
         qnaService.delete(otherUser, question.getId());
     }
@@ -102,14 +101,14 @@ public class QnaServiceTest {
     }
 
     @Test
-    public void deleteAnswer() throws CannotDeleteException {
+    public void deleteAnswer() {
         Answer returnedAnswer = qnaService.deleteAnswer(user, answer.getId());
         assertThat(returnedAnswer).isEqualTo(answer);
         assertThat(returnedAnswer.isDeleted()).isEqualTo(true);
     }
 
-    @Test(expected = CannotDeleteException.class)
-    public void deleteAnswerFail() throws CannotDeleteException {
+    @Test(expected = UnAuthorizedException.class)
+    public void deleteAnswerFail() {
         qnaService.deleteAnswer(otherUser, answer.getId());
     }
 }

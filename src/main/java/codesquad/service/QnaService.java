@@ -53,7 +53,7 @@ public class QnaService {
     }
 
     @Transactional
-    public void delete(User loginUser, long questionId) throws CannotDeleteException {
+    public void delete(User loginUser, long questionId) {
         findQuestionById(questionId).delete(loginUser);
     }
 

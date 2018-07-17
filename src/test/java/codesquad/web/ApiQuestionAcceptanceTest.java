@@ -12,8 +12,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import support.test.AcceptanceTest;
 
-import java.util.Objects;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ApiQuestionAcceptanceTest extends AcceptanceTest {
@@ -23,27 +21,10 @@ public class ApiQuestionAcceptanceTest extends AcceptanceTest {
     @Autowired
     private QuestionRepository questionRepository;
 
-    private ResponseEntity requestQuestionCreation() {
-        return requestQuestionCreation(null);
-    }
-
-    private ResponseEntity requestQuestionCreation(Question question) {
-        if (Objects.isNull(question))
-            question = new Question("title_good", "contents_long");
-
-        ResponseEntity<Void> response = basicAuthTemplate(defaultUser())
-                .postForEntity(
-                        "/api/questions",
-                        question,
-                        Void.class
-                );
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
-        return response;
-    }
 
     @Test
     public void create() {
-        requestQuestionCreation();
+        createObject("/api/questions", new Question("title_good", "contents_long"));
     }
 
     @Test
@@ -56,8 +37,7 @@ public class ApiQuestionAcceptanceTest extends AcceptanceTest {
     @Test
     public void show() {
         Question question = new Question("title_longlong", "contents_long long");
-        ResponseEntity responseEntity = requestQuestionCreation(question);
-        String location = responseEntity.getHeaders().getLocation().getPath();
+        String location = createObject("/api/questions", question);
 
         ResponseEntity<Question> questionResponse = template().getForEntity(location, Question.class);
         assertThat(questionResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -67,8 +47,7 @@ public class ApiQuestionAcceptanceTest extends AcceptanceTest {
 
     @Test
     public void update() throws Exception {
-        ResponseEntity responseEntity = requestQuestionCreation();
-        String location = responseEntity.getHeaders().getLocation().getPath();
+        String location = createObject("/api/questions", new Question("title_good", "contents_long"));
 
         Question updateQuestion = new Question("title_updated", "contents_updated");
         ResponseEntity<Question> questionResponse = basicAuthTemplate(defaultUser())
@@ -89,8 +68,7 @@ public class ApiQuestionAcceptanceTest extends AcceptanceTest {
 
     @Test
     public void delete() {
-        ResponseEntity responseEntity = requestQuestionCreation();
-        String location = responseEntity.getHeaders().getLocation().getPath();
+        String location = createObject("/api/questions", new Question("title_good", "contents_long"));
 
         ResponseEntity<RestResponse> restResponse = basicAuthTemplate(defaultUser())
                 .exchange(
@@ -106,8 +84,7 @@ public class ApiQuestionAcceptanceTest extends AcceptanceTest {
 
     @Test
     public void deleteFail_다른사람() {
-        ResponseEntity responseEntity = requestQuestionCreation();
-        String location = responseEntity.getHeaders().getLocation().getPath();
+        String location = createObject("/api/questions", new Question("title_good", "contents_long"));
 
         ResponseEntity<RestResponse> restResponse = basicAuthTemplate(findByUserId("yeon"))
                 .exchange(
