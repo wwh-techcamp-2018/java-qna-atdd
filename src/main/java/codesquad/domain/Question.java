@@ -1,5 +1,7 @@
 package codesquad.domain;
 
+import codesquad.CannotDeleteException;
+import codesquad.UnAuthorizedException;
 import org.hibernate.annotations.Where;
 import support.domain.AbstractEntity;
 import support.domain.UrlGeneratable;
@@ -85,5 +87,22 @@ public class Question extends AbstractEntity implements UrlGeneratable {
     @Override
     public String toString() {
         return "Question [id=" + getId() + ", title=" + title + ", contents=" + contents + ", writer=" + writer + "]";
+    }
+
+    public Question update(User loginUser, Question updatedQuestion) {
+        if (!writer.equals(loginUser)) {
+            throw new UnAuthorizedException();
+        }
+        this.title = updatedQuestion.title;
+        this.contents = updatedQuestion.contents;
+        return this;
+    }
+
+    public void delete(User loginUser) throws CannotDeleteException {
+        if (!writer.equals(loginUser)) {
+            throw new CannotDeleteException("User not match");
+        }
+
+        this.deleted = true;
     }
 }
