@@ -1,6 +1,8 @@
 package codesquad.service;
 
 import codesquad.CannotDeleteException;
+import codesquad.ResourceNotFoundException;
+import codesquad.UnAuthorizedException;
 import codesquad.domain.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,15 +37,27 @@ public class QnaService {
         return questionRepository.findById(id);
     }
 
+    public Question findById(long id, User user) {
+        return questionRepository.findByIdAndWriter(id, user).orElse(null);
+    }
+
     @Transactional
     public Question update(User loginUser, long id, Question updatedQuestion) {
-        // TODO 수정 기능 구현
-        return null;
+        Question origin = questionRepository.findById(id)
+                .orElseThrow(ResourceNotFoundException::new);
+
+        origin.update(loginUser, updatedQuestion);
+
+        return origin;
     }
 
     @Transactional
     public void deleteQuestion(User loginUser, long questionId) throws CannotDeleteException {
-        // TODO 삭제 기능 구현
+        Question question = findById(questionId).orElseThrow(RuntimeException::new);
+        if (!question.isOwner(loginUser)) {
+            throw new UnAuthorizedException();
+        }
+        questionRepository.delete(question);
     }
 
     public Iterable<Question> findAll() {
@@ -54,13 +68,18 @@ public class QnaService {
         return questionRepository.findAll(pageable).getContent();
     }
 
+    @Transactional
     public Answer addAnswer(User loginUser, long questionId, String contents) {
-        // TODO 답변 추가 기능 구현
-        return null;
+        Answer answer = new Answer(loginUser, contents);
+        Question question = questionRepository.findById(questionId).orElseThrow(ResourceNotFoundException::new);
+        question.addAnswer(answer);
+        return answer;
     }
 
+    @Transactional
     public Answer deleteAnswer(User loginUser, long id) {
-        // TODO 답변 삭제 기능 구현 
-        return null;
+        Answer deletedAnswer = answerRepository.findById(id).filter(answer -> answer.isOwner(loginUser)).orElseThrow(UnAuthorizedException::new);
+        answerRepository.delete(deletedAnswer);
+        return deletedAnswer;
     }
 }
