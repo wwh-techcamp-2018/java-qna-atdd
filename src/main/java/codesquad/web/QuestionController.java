@@ -25,13 +25,7 @@ public class QuestionController {
     @PostMapping("")
     public String create(@LoginUser User loginUser, Question question) {
         qnaService.create(loginUser, question);
-        return "redirect:/questions";
-    }
-
-    @GetMapping("")
-    public String list(Model model) {
-        model.addAttribute("questions", qnaService.findAll());
-        return "home";
+        return "redirect:/";
     }
 
     @GetMapping("/{id}/form")
@@ -42,16 +36,21 @@ public class QuestionController {
         return "/qna/updateForm";
     }
 
+    @GetMapping("/{id}")
+    public String show(@PathVariable Long id, Model model) {
+        model.addAttribute("question", qnaService.findById(id).orElseThrow(IllegalArgumentException::new));
+        return "/qna/show";
+    }
+
     @PutMapping("/{id}")
     public String update(@LoginUser User loginUser, @PathVariable Long id, Question updateQuestion) {
         qnaService.update(loginUser, id, updateQuestion);
-        return "redirect:/home";
+        return "redirect:/";
     }
-
 
     @DeleteMapping("/{id}")
     public String delete(@LoginUser User loginUser, @PathVariable Long id) throws CannotDeleteException {
         qnaService.deleteQuestion(loginUser, id);
-        return "redirect:/home";
+        return "redirect:/";
     }
 }

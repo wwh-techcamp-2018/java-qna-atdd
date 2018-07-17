@@ -82,16 +82,6 @@ public class Question extends AbstractEntity implements UrlGeneratable {
         this.deleted = deleted;
     }
 
-    @Override
-    public String generateUrl() {
-        return String.format("/questions/%d", getId());
-    }
-
-    @Override
-    public String toString() {
-        return "Question [id=" + getId() + ", title=" + title + ", contents=" + contents + ", writer=" + writer + "]";
-    }
-
     public void update(User loginUser, Question updatedQuestion) {
         if (!isOwner(loginUser)) throw new UnAuthorizedException();
 
@@ -103,5 +93,15 @@ public class Question extends AbstractEntity implements UrlGeneratable {
         if (!isOwner(loginUser)) throw new UnAuthorizedException();
 
         setDeleted(true);
+    }
+
+    @Override
+    public String generateUrl() {
+        return String.format("/questions/%d", getId());
+    }
+
+    @Override
+    public String toString() {
+        return "Question [id=" + getId() + ", title=" + title + ", contents=" + contents + ", writer=" + writer + "]";
     }
 }
