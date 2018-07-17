@@ -1,5 +1,6 @@
 package codesquad.security;
 
+import codesquad.CannotDeleteException;
 import codesquad.UnAuthenticationException;
 import codesquad.UnAuthorizedException;
 import org.slf4j.Logger;
@@ -21,15 +22,25 @@ public class SecurityControllerAdvice {
         log.debug("EntityNotFoundException is happened!");
     }
 
+    // 인가
+    // 특정 사용자가 특정 자원에 접근할 수 있는 권한이 있냐
     @ExceptionHandler(UnAuthorizedException.class)
     @ResponseStatus(value = HttpStatus.FORBIDDEN)
     public void unAuthorized() {
         log.debug("UnAuthorizedException is happened!");
     }
 
+    // 인증
+    // 사용자가 누구인지를 알 수 있냐
     @ExceptionHandler(UnAuthenticationException.class)
     @ResponseStatus(value = HttpStatus.UNAUTHORIZED)
     public void unAuthentication() {
         log.debug("UnAuthenticationException is happened!");
+    }
+
+    @ExceptionHandler(CannotDeleteException.class)
+    @ResponseStatus(value = HttpStatus.FORBIDDEN)
+    public void cannotDelete() {
+        log.debug("CannotDeleteException is happened!");
     }
 }
