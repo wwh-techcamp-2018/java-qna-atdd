@@ -1,6 +1,8 @@
 package codesquad.service;
 
 import codesquad.CannotDeleteException;
+import codesquad.UnAuthorizedException;
+import codesquad.UnexpectedException;
 import codesquad.domain.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,13 +39,21 @@ public class QnaService {
 
     @Transactional
     public Question update(User loginUser, long id, Question updatedQuestion) {
-        // TODO 수정 기능 구현
-        return null;
+        Question original = findById(id)
+                .filter(question -> question.isOwner(loginUser))
+                .orElseThrow(UnAuthorizedException::new);
+        original.setTitle(updatedQuestion.getTitle());
+        original.setContents(updatedQuestion.getContents());
+        return original;
     }
 
     @Transactional
     public void deleteQuestion(User loginUser, long questionId) throws CannotDeleteException {
-        // TODO 삭제 기능 구현
+        Question question = findById(questionId)
+                .filter(maybeQuestion -> maybeQuestion.isOwner(loginUser))
+                .orElseThrow(() -> new CannotDeleteException("질문을 지울 수 없어요!"));
+
+        questionRepository.delete(question);
     }
 
     public Iterable<Question> findAll() {
@@ -54,13 +64,20 @@ public class QnaService {
         return questionRepository.findAll(pageable).getContent();
     }
 
+    @Transactional
     public Answer addAnswer(User loginUser, long questionId, String contents) {
-        // TODO 답변 추가 기능 구현
-        return null;
+        Question question = findById(questionId).orElseThrow(() -> new UnexpectedException("질문이 없어요"));
+        Answer answer = new Answer(loginUser, contents);
+        question.addAnswer(answer);
+        return answer;
     }
 
-    public Answer deleteAnswer(User loginUser, long id) {
-        // TODO 답변 삭제 기능 구현 
-        return null;
+    public Answer deleteAnswer(User loginUser, long id) throws CannotDeleteException {
+        Answer answer = answerRepository.findById(id)
+                .filter(maybeAnswer -> maybeAnswer.isOwner(loginUser))
+                .orElseThrow(() -> new CannotDeleteException("답변을 지울 수 없어요!"));
+
+        answerRepository.delete(answer);
+        return answer;
     }
 }
