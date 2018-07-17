@@ -6,9 +6,12 @@ import codesquad.UnAuthorizedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.context.request.WebRequest;
 
 import javax.persistence.EntityNotFoundException;
 
@@ -24,15 +27,22 @@ public class SecurityControllerAdvice {
 
     @ExceptionHandler(UnAuthorizedException.class)
     @ResponseStatus(value = HttpStatus.OK)
-    public String unAuthorized() {
+    public Object unAuthorized(WebRequest webRequest) {
         log.debug("UnAuthorizedException is happened!");
+        log.debug("Request content-type: {}", webRequest.getHeader("content-type"));
+        if (webRequest.getHeader("content-type").contains("application/json"))
+            return new ResponseEntity<Void>(HttpStatus.FORBIDDEN);
         return "redirect:/";
     }
 
     @ExceptionHandler(UnAuthenticationException.class)
     @ResponseStatus(value = HttpStatus.OK)
-    public String unAuthentication() {
+    public Object unAuthentication(WebRequest webRequest) {
         log.debug("UnAuthenticationException is happened!");
+        log.debug("Request content-type: {}", webRequest.getHeader("content-type"));
+
+        if (webRequest.getHeader("content-type").contains("application/json"))
+            return new ResponseEntity<Void>(HttpStatus.UNAUTHORIZED);
         return "/user/login";
     }
 

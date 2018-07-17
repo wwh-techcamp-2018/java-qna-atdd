@@ -58,12 +58,14 @@ public class QnaService {
     }
 
     public Answer addAnswer(User loginUser, long questionId, String contents) {
-        // TODO 답변 추가 기능 구현
-        return null;
+        // TODO: 2018. 7. 17. 없는 질문이면요?
+        Answer answer = new Answer(loginUser, contents);
+        Question question = findById(questionId).get().addAnswer(answer);
+        return answerRepository.save(answer);
     }
 
     public Answer deleteAnswer(User loginUser, long id) {
-        // TODO 답변 삭제 기능 구현 
-        return null;
+        // TODO: 2018. 7. 17. 없는 답변이면요?
+        return answerRepository.save(answerRepository.findById(id).get().delete(loginUser));
     }
 }
