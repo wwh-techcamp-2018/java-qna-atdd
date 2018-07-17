@@ -17,6 +17,14 @@ public class HtmlFormDataBuilder {
         this.params = new LinkedMultiValueMap<>();
     }
 
+    public HtmlFormDataBuilder put() {
+        return addParameter("_method", "put");
+    }
+
+    public HtmlFormDataBuilder delete() {
+
+        return addParameter("_method", "delete");
+    }
 
     public HtmlFormDataBuilder addParameter(String key, Object value) {
         this.params.add(key, value);
@@ -31,6 +39,12 @@ public class HtmlFormDataBuilder {
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(Arrays.asList(MediaType.TEXT_HTML));
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+        return new HtmlFormDataBuilder(headers);
+    }
+
+    public static HtmlFormDataBuilder urlApplicationJson() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
         return new HtmlFormDataBuilder(headers);
     }
 }
