@@ -1,6 +1,8 @@
 package codesquad.service;
 
 import codesquad.CannotDeleteException;
+import codesquad.UnAuthorizedException;
+import codesquad.UnexpectedException;
 import codesquad.domain.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,19 +33,28 @@ public class QnaService {
         return questionRepository.save(question);
     }
 
-    public Optional<Question> findById(long id) {
-        return questionRepository.findById(id);
+    private Optional<Question> findById(long id) {
+        return questionRepository.findByIdAndDeletedFalse(id);
+    }
+
+    public Question findQuestionById(long id) {
+        return findById(id).orElseThrow(()-> new UnexpectedException("question이 없습니다."));
+    }
+
+    public Question findQuestionByIdAndUser(long id, User loginUser) {
+        return findById(id)
+                .filter(question -> question.isOwner(loginUser))
+                .orElseThrow(UnAuthorizedException::new);
     }
 
     @Transactional
     public Question update(User loginUser, long id, Question updatedQuestion) {
-        // TODO 수정 기능 구현
-        return null;
+       return findQuestionById(id).update(loginUser, updatedQuestion);
     }
 
     @Transactional
-    public void deleteQuestion(User loginUser, long questionId) throws CannotDeleteException {
-        // TODO 삭제 기능 구현
+    public void delete(User loginUser, long questionId) {
+        findQuestionById(questionId).delete(loginUser);
     }
 
     public Iterable<Question> findAll() {
@@ -54,13 +65,17 @@ public class QnaService {
         return questionRepository.findAll(pageable).getContent();
     }
 
+    @Transactional
     public Answer addAnswer(User loginUser, long questionId, String contents) {
-        // TODO 답변 추가 기능 구현
-        return null;
+        return findById(questionId)
+                .orElseThrow(() -> new UnexpectedException("질문이 없어요"))
+                .addAnswer(new Answer(loginUser, contents));
     }
 
+    @Transactional
     public Answer deleteAnswer(User loginUser, long id) {
-        // TODO 답변 삭제 기능 구현 
-        return null;
+        return answerRepository.findByIdAndDeletedFalse(id)
+                .orElseThrow(() -> new UnexpectedException("답변이 없어요!"))
+                .delete(loginUser);
     }
 }

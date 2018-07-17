@@ -11,8 +11,9 @@ public class RestResponse extends RestStatus {
         result = new HashMap<>();
     }
 
-    public void addAttribute(String key, Object value) {
+    public RestResponse addAttribute(String key, Object value) {
         result.put(key, value);
+        return this;
     }
 
     public Map<String, Object> getResult() {

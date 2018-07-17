@@ -1,10 +1,14 @@
 package codesquad.domain;
 
+import codesquad.CannotDeleteException;
+import codesquad.UnAuthorizedException;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import support.domain.AbstractEntity;
 import support.domain.UrlGeneratable;
 
 import javax.persistence.*;
 import javax.validation.constraints.Size;
+import java.util.Optional;
 
 @Entity
 public class Answer extends AbstractEntity implements UrlGeneratable {
@@ -14,6 +18,7 @@ public class Answer extends AbstractEntity implements UrlGeneratable {
 
     @ManyToOne
     @JoinColumn(foreignKey = @ForeignKey(name = "fk_answer_to_question"))
+    @JsonIgnore
     private Question question;
 
     @Size(min = 5)
@@ -65,6 +70,14 @@ public class Answer extends AbstractEntity implements UrlGeneratable {
 
     public boolean isDeleted() {
         return deleted;
+    }
+
+    public Answer delete(User user) {
+        Optional.of(user)
+                .filter(this::isOwner)
+                .orElseThrow(UnAuthorizedException::new);
+        deleted = true;
+        return this;
     }
 
     @Override
