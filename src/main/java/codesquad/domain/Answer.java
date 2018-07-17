@@ -1,10 +1,12 @@
 package codesquad.domain;
 
+import codesquad.CannotDeleteException;
 import support.domain.AbstractEntity;
 import support.domain.UrlGeneratable;
 
 import javax.persistence.*;
 import javax.validation.constraints.Size;
+import java.util.Optional;
 
 @Entity
 public class Answer extends AbstractEntity implements UrlGeneratable {
@@ -65,6 +67,14 @@ public class Answer extends AbstractEntity implements UrlGeneratable {
 
     public boolean isDeleted() {
         return deleted;
+    }
+
+    public Answer delete(User user) throws CannotDeleteException {
+        Optional.of(user)
+                .filter(this::isOwner)
+                .orElseThrow(() -> new CannotDeleteException("답변을 삭제할 수 없습니다."));
+        deleted = true;
+        return this;
     }
 
     @Override

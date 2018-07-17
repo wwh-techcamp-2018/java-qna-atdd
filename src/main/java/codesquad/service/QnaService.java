@@ -33,27 +33,28 @@ public class QnaService {
         return questionRepository.save(question);
     }
 
-    public Optional<Question> findById(long id) {
-        return questionRepository.findById(id);
+    private Optional<Question> findById(long id) {
+        return questionRepository.findByIdAndDeletedFalse(id);
+    }
+
+    public Question findQuestionById(long id) {
+        return findById(id).orElseThrow(()-> new UnexpectedException("question이 없습니다."));
+    }
+
+    public Question findQuestionByIdAndUser(long id, User loginUser) {
+        return findById(id)
+                .filter(question -> question.isOwner(loginUser))
+                .orElseThrow(UnAuthorizedException::new);
     }
 
     @Transactional
     public Question update(User loginUser, long id, Question updatedQuestion) {
-        Question original = findById(id)
-                .filter(question -> question.isOwner(loginUser))
-                .orElseThrow(UnAuthorizedException::new);
-        original.setTitle(updatedQuestion.getTitle());
-        original.setContents(updatedQuestion.getContents());
-        return original;
+       return findQuestionById(id).update(loginUser, updatedQuestion);
     }
 
     @Transactional
-    public void deleteQuestion(User loginUser, long questionId) throws CannotDeleteException {
-        Question question = findById(questionId)
-                .filter(maybeQuestion -> maybeQuestion.isOwner(loginUser))
-                .orElseThrow(() -> new CannotDeleteException("질문을 지울 수 없어요!"));
-
-        questionRepository.delete(question);
+    public void delete(User loginUser, long questionId) throws CannotDeleteException {
+        findQuestionById(questionId).delete(loginUser);
     }
 
     public Iterable<Question> findAll() {
@@ -66,18 +67,15 @@ public class QnaService {
 
     @Transactional
     public Answer addAnswer(User loginUser, long questionId, String contents) {
-        Question question = findById(questionId).orElseThrow(() -> new UnexpectedException("질문이 없어요"));
-        Answer answer = new Answer(loginUser, contents);
-        question.addAnswer(answer);
-        return answer;
+        return findById(questionId)
+                .orElseThrow(() -> new UnexpectedException("질문이 없어요"))
+                .addAnswer(new Answer(loginUser, contents));
     }
 
+    @Transactional
     public Answer deleteAnswer(User loginUser, long id) throws CannotDeleteException {
-        Answer answer = answerRepository.findById(id)
-                .filter(maybeAnswer -> maybeAnswer.isOwner(loginUser))
-                .orElseThrow(() -> new CannotDeleteException("답변을 지울 수 없어요!"));
-
-        answerRepository.delete(answer);
-        return answer;
+        return answerRepository.findByIdAndDeletedFalse(id)
+                .orElseThrow(() -> new CannotDeleteException("답변을 지울 수 없어요!"))
+                .delete(loginUser);
     }
 }

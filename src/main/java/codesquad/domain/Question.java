@@ -1,5 +1,7 @@
 package codesquad.domain;
 
+import codesquad.CannotDeleteException;
+import codesquad.UnAuthorizedException;
 import org.hibernate.annotations.Where;
 import support.domain.AbstractEntity;
 import support.domain.UrlGeneratable;
@@ -8,6 +10,7 @@ import javax.persistence.*;
 import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Entity
 public class Question extends AbstractEntity implements UrlGeneratable {
@@ -67,9 +70,10 @@ public class Question extends AbstractEntity implements UrlGeneratable {
         this.writer = loginUser;
     }
 
-    public void addAnswer(Answer answer) {
+    public Answer addAnswer(Answer answer) {
         answer.toQuestion(this);
         answers.add(answer);
+        return answer;
     }
 
     public boolean isOwner(User loginUser) {
@@ -78,6 +82,26 @@ public class Question extends AbstractEntity implements UrlGeneratable {
 
     public boolean isDeleted() {
         return deleted;
+    }
+
+    public void delete(User user) throws CannotDeleteException {
+        Optional.of(user)
+                .filter(this::isOwner)
+                .orElseThrow(() -> new CannotDeleteException("질문을 삭제할 수 없습니다."));
+        deleted = true;
+
+        for (Answer answer : answers) {
+            answer.delete(user);
+        }
+    }
+
+    public Question update(User user, Question updateQuestion) {
+        Optional.of(user)
+                .filter(this::isOwner)
+                .orElseThrow(UnAuthorizedException::new);
+        this.title = updateQuestion.title;
+        this.contents = updateQuestion.contents;
+        return this;
     }
 
     @Override

@@ -46,8 +46,8 @@ public class QnaServiceTest {
         answer = new Answer((long) 0, user, question, "answerContents");
 
         when(questionRepository.save(question)).thenReturn(question);
-        when(questionRepository.findById((long) 1)).thenReturn(Optional.of(question));
-        when(answerRepository.findById(answer.getId())).thenReturn(Optional.of(answer));
+        when(questionRepository.findByIdAndDeletedFalse((long) 1)).thenReturn(Optional.of(question));
+        when(answerRepository.findByIdAndDeletedFalse(answer.getId())).thenReturn(Optional.of(answer));
     }
 
     @Test
@@ -57,11 +57,8 @@ public class QnaServiceTest {
     }
 
     @Test
-    public void readQuestion() throws Exception {
-        Optional<Question> maybeQuestion = qnaService.findById((long) 1);
-        if (!maybeQuestion.isPresent())
-            throw new Exception();
-        assertThat(maybeQuestion.get()).isEqualTo(question);
+    public void readQuestion() {
+        assertThat(qnaService.findQuestionById((long) 1)).isEqualTo(question);
     }
 
     @Test
@@ -81,18 +78,20 @@ public class QnaServiceTest {
         Question expectedQuestion = new Question(updated.getTitle(), updated.getContents());
         expectedQuestion.setId(original.getId());
         expectedQuestion.writeBy(original.getWriter());
-
         return expectedQuestion;
+
     }
 
     @Test
     public void deleteQuestion() throws CannotDeleteException {
-        qnaService.deleteQuestion(user, question.getId());
+        qnaService.delete(user, question.getId());
+        assertThat(question.isDeleted()).isEqualTo(true);
+        assertThat(question.getAnswers().stream().allMatch(Answer::isDeleted)).isEqualTo(true);
     }
 
     @Test(expected = CannotDeleteException.class)
     public void deleteQuestionFail() throws CannotDeleteException {
-        qnaService.deleteQuestion(otherUser, question.getId());
+        qnaService.delete(otherUser, question.getId());
     }
 
     @Test
@@ -106,6 +105,7 @@ public class QnaServiceTest {
     public void deleteAnswer() throws CannotDeleteException {
         Answer returnedAnswer = qnaService.deleteAnswer(user, answer.getId());
         assertThat(returnedAnswer).isEqualTo(answer);
+        assertThat(returnedAnswer.isDeleted()).isEqualTo(true);
     }
 
     @Test(expected = CannotDeleteException.class)
