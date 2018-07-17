@@ -31,23 +31,19 @@ public class ApiAnswerAcceptanceTest extends AcceptanceTest {
     @Test
     public void create() {
         String contents = "홍종완씨입니다";
-        ResponseEntity<Answer> response = basicAuthTemplate()
-                .postForEntity(String.format("/api/questions/%d/answers", question.getId()), contents, Answer.class);
-
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        ResponseEntity<Answer> response = createResource(String.format("/api/questions/%d/answers", question.getId()), contents, Answer.class);
         assertThat(response.getBody().getContents()).isEqualTo(contents);
     }
 
     @Test
     public void delete() {
         String contents = "홍종완씨입니다";
-        ResponseEntity<Answer> response = basicAuthTemplate()
-                .postForEntity(String.format("/api/questions/%d/answers", question.getId()), contents, Answer.class);
+        ResponseEntity<Answer> response = createResource(String.format("/api/questions/%d/answers", question.getId()), contents, Answer.class);
         Answer savedAnswer = response.getBody();
 
         ResponseEntity<Void> responseEntity =
-                basicAuthTemplate().exchange(String.format("/api/questions/%d/answers/%d", savedAnswer.getQuestion().getId(), savedAnswer.getId()), HttpMethod.DELETE, new HttpEntity(new HttpHeaders()), Void.class);
+                deleteResourceByDefaultUser(String.format("/api/questions/%d/answers/%d", savedAnswer.getQuestion().getId(), savedAnswer.getId()), new HttpEntity(new HttpHeaders()), Void.class);
 
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 }
