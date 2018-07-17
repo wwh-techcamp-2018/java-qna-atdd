@@ -51,7 +51,7 @@ public class QnaService {
     public Question deleteQuestion(User loginUser, long questionId) {
         Question question = questionRepository.findById(questionId).get();
         if (!question.isOwner(loginUser)) {
-            throw new CannotDeleteException("다른 사람의 답변을 삭제할 수 없습니다.");
+            throw new CannotDeleteException("다른 사람의 질문을 삭제할 수 없습니다.");
         }
         question.delete();
         return question;
