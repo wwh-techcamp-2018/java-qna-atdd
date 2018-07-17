@@ -37,7 +37,7 @@ public class SecurityControllerAdvice {
     }
 
     @ExceptionHandler(CannotDeleteException.class)
-    @ResponseStatus(value = HttpStatus.UNAUTHORIZED)
+    @ResponseStatus(value = HttpStatus.FORBIDDEN)
     public String cannotDelete(CannotDeleteException e, Model model) {
         log.debug(e.getMessage());
         model.addAttribute("message", e.getMessage());

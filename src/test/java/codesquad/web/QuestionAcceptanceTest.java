@@ -3,6 +3,7 @@ package codesquad.web;
 import codesquad.domain.AnswerRepository;
 import codesquad.domain.QuestionRepository;
 import codesquad.domain.User;
+import codesquad.domain.UserTest;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,14 +26,14 @@ public class QuestionAcceptanceTest extends AcceptanceTest {
     private AnswerRepository answerRepository;
 
     @Test
-    public void createForm() throws Exception {
+    public void createForm() {
         ResponseEntity<String> response = template().getForEntity("/questions/form", String.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         log.debug("body : {}", response.getBody());
     }
 
     @Test
-    public void create() throws Exception {
+    public void create() {
         HttpEntity<MultiValueMap<String, Object>> request =
                 HtmlFormDataBuilder
                         .urlEncodedForm()
@@ -46,6 +47,21 @@ public class QuestionAcceptanceTest extends AcceptanceTest {
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FOUND);
         assertThat(response.getHeaders().getLocation().getPath()).startsWith("/");
+    }
+
+    @Test
+    public void create_when_not_login() {
+        HttpEntity<MultiValueMap<String, Object>> request =
+                HtmlFormDataBuilder
+                        .urlEncodedForm()
+                        .addParameter("title", "title")
+                        .addParameter("contents", "contents")
+                        .build();
+
+        ResponseEntity<String> response = template()
+                .postForEntity("/questions", request, String.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
     }
 
     @Test
@@ -68,6 +84,22 @@ public class QuestionAcceptanceTest extends AcceptanceTest {
     }
 
     @Test
+    public void update_fail_when_mismatch_user() {
+        HttpEntity<MultiValueMap<String, Object>> request =
+                HtmlFormDataBuilder
+                        .urlEncodedForm()
+                        .addParameter("_method", "put")
+                        .addParameter("title", "updatedTitle")
+                        .addParameter("contents", "updatedContents")
+                        .build();
+
+        ResponseEntity<String> response = basicAuthTemplate(UserTest.SANJIGI)
+                .postForEntity("/questions/1", request, String.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+    }
+
+    @Test
     public void delete() {
         HttpEntity<MultiValueMap<String, Object>> request =
                 HtmlFormDataBuilder
@@ -82,6 +114,20 @@ public class QuestionAcceptanceTest extends AcceptanceTest {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FOUND);
         assertThat(questionRepository.findById(1L).get().isDeleted()).isEqualTo(true);
         assertThat(response.getHeaders().getLocation().getPath()).startsWith("/");
+    }
+
+    @Test
+    public void delete_fail_when_mismatch_user() {
+        HttpEntity<MultiValueMap<String, Object>> request =
+                HtmlFormDataBuilder
+                        .urlEncodedForm()
+                        .addParameter("_method", "delete")
+                        .build();
+
+        ResponseEntity<String> response = basicAuthTemplate(UserTest.SANJIGI)
+                .postForEntity("/questions/1", request, String.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
     }
 
     @Test
