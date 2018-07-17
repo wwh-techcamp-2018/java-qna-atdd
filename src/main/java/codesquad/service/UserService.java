@@ -1,6 +1,6 @@
 package codesquad.service;
 
-import codesquad.UnAuthenticationException;
+import codesquad.LoginFailException;
 import codesquad.UnAuthorizedException;
 import codesquad.domain.User;
 import codesquad.domain.UserRepository;
@@ -36,13 +36,10 @@ public class UserService {
     public List<User> findAll() {
         return userRepository.findAll();
     }
-
-    public User login(String userId, String password) throws UnAuthenticationException {
-        // TODO 로그인 기능 구현
-        User user = userRepository.findByUserId(userId).orElseThrow(UnAuthenticationException::new);
-        if(!user.matchPassword(password)) {
-            throw new UnAuthenticationException();
-        }
-        return user;
+  
+    public User login(String userId, String password) throws LoginFailException {
+        return userRepository.findByUserId(userId)
+                .filter(u -> u.matchPassword(password))
+                .orElseThrow(LoginFailException::new);
     }
 }

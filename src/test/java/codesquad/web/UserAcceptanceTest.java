@@ -82,13 +82,12 @@ public class UserAcceptanceTest extends AcceptanceTest {
     }
 
     private ResponseEntity<String> update(TestRestTemplate template) throws Exception {
-        HtmlFormDataBuilder htmlFormDataBuilder = HtmlFormDataBuilder.urlEncodedForm();
-        htmlFormDataBuilder.addParameter("_method", "put");
-        htmlFormDataBuilder.addParameter("password", "test");
-        htmlFormDataBuilder.addParameter("name", "자바지기2");
-        htmlFormDataBuilder.addParameter("email", "javajigi@slipp.net");
-        HttpEntity<MultiValueMap<String, Object>> request = htmlFormDataBuilder.build();
-
+        HttpEntity<MultiValueMap<String, Object>> request = HtmlFormDataBuilder.urlEncodedForm()
+                .addParameter("_method", "put")
+                .addParameter("password", "test")
+                .addParameter("name", "자바지기2")
+                .addParameter("email", "javajigi@slipp.net")
+                .build();
         return template.postForEntity(String.format("/users/%d", defaultUser().getId()), request, String.class);
     }
 

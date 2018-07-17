@@ -1,6 +1,6 @@
 package codesquad.security;
 
-import codesquad.UnAuthenticationException;
+import codesquad.LoginFailException;
 import codesquad.domain.User;
 import codesquad.service.UserService;
 import org.slf4j.Logger;
@@ -39,7 +39,7 @@ public class BasicAuthInterceptor extends HandlerInterceptorAdapter {
             log.debug("Login Success : {}", user);
             request.getSession().setAttribute(HttpSessionUtils.USER_SESSION_KEY, user);
             return true;
-        } catch (UnAuthenticationException e) {
+        } catch (LoginFailException e) {
             return true;
         }
     }

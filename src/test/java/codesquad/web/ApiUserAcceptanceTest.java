@@ -2,13 +2,15 @@ package codesquad.web;
 
 import codesquad.domain.User;
 import org.junit.Test;
-import org.springframework.http.*;
-import support.test.AcceptanceTest;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import support.test.ApiAcceptanceTest;
 
 import static codesquad.domain.UserTest.newUser;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ApiUserAcceptanceTest extends AcceptanceTest {
+public class ApiUserAcceptanceTest extends ApiAcceptanceTest {
 
     @Test
     public void create() throws Exception {
@@ -28,7 +30,7 @@ public class ApiUserAcceptanceTest extends AcceptanceTest {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         String location = response.getHeaders().getLocation().getPath();
 
-        response = basicAuthTemplate(defaultUser()).getForEntity(location, Void.class);
+        response = basicAuthTemplate(defaultUser()).exchange(location,HttpMethod.GET,createHttpEntity(), Void.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
     }
 
@@ -63,11 +65,5 @@ public class ApiUserAcceptanceTest extends AcceptanceTest {
         ResponseEntity<Void> responseEntity =
                 basicAuthTemplate(defaultUser()).exchange(location, HttpMethod.PUT, createHttpEntity(updateUser), Void.class);
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
-    }
-
-    private HttpEntity createHttpEntity(Object body) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        return new HttpEntity(body, headers);
     }
 }
