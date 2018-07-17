@@ -9,6 +9,7 @@ import javax.persistence.*;
 import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Entity
 public class Question extends AbstractEntity implements UrlGeneratable {
@@ -65,9 +66,10 @@ public class Question extends AbstractEntity implements UrlGeneratable {
         this.writer = loginUser;
     }
 
-    public void addAnswer(Answer answer) {
+    public Answer addAnswer(Answer answer) {
         answer.toQuestion(this);
         answers.add(answer);
+        return answer;
     }
 
     public boolean isOwner(User loginUser) {
@@ -76,6 +78,9 @@ public class Question extends AbstractEntity implements UrlGeneratable {
 
     public boolean isDeleted() {
         return deleted;
+    }
+    public void setDeleted() {
+        this.deleted = true;
     }
 
     @Override
@@ -93,5 +98,11 @@ public class Question extends AbstractEntity implements UrlGeneratable {
         setTitle(updatedQuestion.getTitle());
         setContents(updatedQuestion.getContents());
         return this;
+    }
+
+    public void delete(User user) {
+        if(!isOwner(user)) throw new UnAuthorizedException();
+        setDeleted();
+
     }
 }

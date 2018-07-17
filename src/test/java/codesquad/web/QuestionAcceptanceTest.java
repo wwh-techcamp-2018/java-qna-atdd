@@ -4,6 +4,7 @@ package codesquad.web;
 import codesquad.domain.Question;
 import codesquad.domain.QuestionRepository;
 import codesquad.domain.User;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.util.MultiValueMap;
 import support.test.AcceptanceTest;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -22,8 +24,11 @@ public class QuestionAcceptanceTest extends AcceptanceTest {
     @Autowired
     private QuestionRepository questionRepository;
 
-    Question question;
-    Question updateQuestion;
+    private Question question;
+    private Question updateQuestion;
+
+    private HtmlFormDataBuilder builder;
+    private Map<String,Object> params;
 
     @Before
     public void setup() {
@@ -34,38 +39,41 @@ public class QuestionAcceptanceTest extends AcceptanceTest {
 
         updateQuestion = new Question("Update questionTitle", "Update questionContents");
         question.writeBy(defaultUser());
+
+        builder = HtmlFormDataBuilder.urlEncodedForm();
+        params = new HashMap<>();
+    }
+
+    @After
+    public void tearDown(){
+        questionRepository.delete(question);
     }
 
     @Test
     public void create() {
-        HtmlFormDataBuilder builder = HtmlFormDataBuilder.urlEncodedForm();
-
-        HttpEntity<MultiValueMap<String,Object>> request = builder
-                .addParameter("title", question.getTitle())
-                .addParameter("contents", question.getContents())
-                .bulid();
-
-        ResponseEntity<String> response = basicAuthTemplate(defaultUser()).postForEntity("/questions", request, String.class);
+        params.put("title", question.getTitle());
+        params.put("contents", question.getContents());
+        ResponseEntity<String> response = basicAuthPostRequest("/questions"
+                , defaultUser()
+                , params
+                , HtmlFormDataBuilder.METHOD_POST);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FOUND);
         assertThat(response.getHeaders().getLocation().getPath()).isEqualTo("/");
     }
 
     @Test
     public void create_invalid_User(){
-        HtmlFormDataBuilder builder = HtmlFormDataBuilder.urlEncodedForm();
-
-        HttpEntity<MultiValueMap<String,Object>> request = builder
-                .addParameter("title", question.getTitle())
-                .addParameter("contents", question.getContents())
-                .bulid();
-
-        ResponseEntity<String> response = basicAuthTemplate(User.GUEST_USER).postForEntity("/questions", request, String.class);
+        params.put("title", question.getTitle());
+        params.put("contents", question.getContents());
+        ResponseEntity<String> response = basicAuthPostRequest("/questions"
+                , User.GUEST_USER
+                , params
+                , HtmlFormDataBuilder.METHOD_POST);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
     }
 
     @Test
     public void show(){
-        HtmlFormDataBuilder builder = HtmlFormDataBuilder.urlEncodedForm();
         ResponseEntity<String> response = template().getForEntity(question.generateUrl(), String.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -74,14 +82,12 @@ public class QuestionAcceptanceTest extends AcceptanceTest {
 
     @Test
     public void update(){
-        HtmlFormDataBuilder builder = HtmlFormDataBuilder.urlEncodedForm();
-
-        HttpEntity<MultiValueMap<String,Object>> request = builder
-                .addParameter("_method", "put")
-                .addParameter("title", updateQuestion.getTitle())
-                .addParameter("contents", updateQuestion.getContents())
-                .bulid();
-        ResponseEntity<String> response = basicAuthTemplate(defaultUser()).postForEntity(question.generateUrl(), request, String.class);
+        params.put("title", updateQuestion.getTitle());
+        params.put("contents", updateQuestion.getContents());
+        ResponseEntity<String> response = basicAuthPostRequest(question.generateUrl()
+                , defaultUser()
+                , params
+                , HtmlFormDataBuilder.METHOD_PUT);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FOUND);
         assertThat(response.getHeaders().getLocation().getPath()).isEqualTo(question.generateUrl());
 
@@ -89,7 +95,44 @@ public class QuestionAcceptanceTest extends AcceptanceTest {
 
     @Test
     public void update_invalid_user(){
+        params.put("title", updateQuestion.getTitle());
+        params.put("contents", updateQuestion.getContents());
+        ResponseEntity<String> response = basicAuthPostRequest(question.generateUrl()
+                , User.GUEST_USER
+                , params
+                , HtmlFormDataBuilder.METHOD_PUT);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+    }
 
+    @Test
+    public void delete(){
+        ResponseEntity<String> response = basicAuthPostRequest(question.generateUrl()
+                , defaultUser()
+                , params
+                , HtmlFormDataBuilder.METHOD_DELETE);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FOUND);
+    }
+
+    @Test
+    public void delete_invalid_user(){
+        ResponseEntity<String> response = basicAuthPostRequest(question.generateUrl()
+                , User.GUEST_USER
+                , params
+                , HtmlFormDataBuilder.METHOD_DELETE);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+    }
+
+    private ResponseEntity<String> basicAuthPostRequest(String url, User user, Map params, String method){
+        HttpEntity<MultiValueMap<String,Object>> request = makeRequest(method, params);
+        return basicAuthTemplate(user)
+                .postForEntity(url, request, String.class);
+    }
+
+    private HttpEntity<MultiValueMap<String,Object>> makeRequest(String method, Map params){
+        return builder
+                .method(method)
+                .addParameters(params)
+                .bulid();
     }
 
 }
