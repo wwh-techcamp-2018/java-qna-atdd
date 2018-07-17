@@ -1,5 +1,6 @@
 package codesquad.security;
 
+import codesquad.CannotDeleteException;
 import codesquad.UnAuthenticationException;
 import codesquad.UnAuthorizedException;
 import org.slf4j.Logger;
@@ -19,6 +20,12 @@ public class SecurityControllerAdvice {
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     public void emptyResultData() {
         log.debug("EntityNotFoundException is happened!");
+    }
+
+    @ExceptionHandler(CannotDeleteException.class)
+    @ResponseStatus(value = HttpStatus.FORBIDDEN)
+    public void cannotDelete() {
+        log.debug("CannotDeleteException is happened!");
     }
 
     @ExceptionHandler(UnAuthorizedException.class)

@@ -11,6 +11,8 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import support.HtmlFormDataBuilder;
+import support.QuestionSetUp;
+import support.StringUtil;
 import support.test.AcceptanceTest;
 
 import java.util.List;
@@ -34,15 +36,7 @@ public class QuestionAcceptaceTest extends AcceptanceTest {
     @Before
     public void setUp() throws Exception {
         formDataBuilder = HtmlFormDataBuilder.urlEncodedForm();
-
-        questionRepository.deleteAll();
-        List<Question> questionList = QuestionTest.questionList();
-        for (Question question : questionList) {
-            question.writeBy(defaultUser());
-        }
-
-        questionRepository.saveAll(questionList);
-        questions = questionRepository.findAll();
+        questions = QuestionSetUp.setUp(questionRepository, defaultUser());
         question = questions.get(0);
 
     }
@@ -207,11 +201,11 @@ public class QuestionAcceptaceTest extends AcceptanceTest {
     }
 
     private String getNewTitle() {
-        return question.getTitle() + "1";
+        return StringUtil.getUpdatedString(question.getTitle());
     }
 
     private String getNewContents() {
-        return question.getContents() + "1";
+        return StringUtil.getUpdatedString(question.getContents());
     }
 
 }
