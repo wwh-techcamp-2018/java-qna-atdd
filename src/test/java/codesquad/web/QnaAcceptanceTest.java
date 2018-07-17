@@ -41,9 +41,7 @@ public class QnaAcceptanceTest extends AcceptanceTest {
     @Test
     public void createForm_no_login() throws Exception {
         ResponseEntity<String> response = template().getForEntity("/questions/form", String.class);
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody()).contains("로그인 후 이용 부탁");
-        log.debug("body : {}", response.getBody());
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
     }
 
     @Test
@@ -73,8 +71,7 @@ public class QnaAcceptanceTest extends AcceptanceTest {
     @Test
     public void updateForm_no_login() throws Exception {
         ResponseEntity<String> response = template().getForEntity(defaultQuestion().generateUrl() + "/form", String.class);
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody()).contains("로그인 후 이용 부탁");
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
     }
 
     @Test
@@ -90,8 +87,7 @@ public class QnaAcceptanceTest extends AcceptanceTest {
     @Test
     public void update_no_login() throws Exception {
         ResponseEntity<String> response = update(template());
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody()).contains("로그인 후 이용 부탁");
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
     }
 
     @Test
@@ -102,11 +98,10 @@ public class QnaAcceptanceTest extends AcceptanceTest {
     }
 
     private ResponseEntity<String> update(TestRestTemplate template) throws Exception {
-        htmlFormDataBuilder.addParameter("_method", "put");
         htmlFormDataBuilder.addParameter("title", "test2");
         htmlFormDataBuilder.addParameter("contents", "contents2");
 
-        return template.postForEntity(defaultQuestion().generateUrl(), htmlFormDataBuilder.build(), String.class);
+        return template.exchange(defaultQuestion().generateUrl(), HttpMethod.PUT, htmlFormDataBuilder.build(), String.class);
     }
 
     @Test
@@ -119,8 +114,7 @@ public class QnaAcceptanceTest extends AcceptanceTest {
     @Test
     public void delete_no_login() {
         ResponseEntity<String> response = template().exchange(defaultQuestion().generateUrl(), HttpMethod.DELETE, htmlFormDataBuilder.build(), String.class);
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody()).contains("로그인 후 이용 부탁");
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
     }
 
     @Test

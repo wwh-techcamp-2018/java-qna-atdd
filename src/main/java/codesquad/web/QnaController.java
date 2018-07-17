@@ -28,38 +28,26 @@ public class QnaController {
     }
 
     @GetMapping("/form")
-    public String showCreateForm(@LoginUser(required = false) User user) {
-        if (user.isGuestUser()) {
-            return "/qna/unauthenticated";
-        }
-
+    public String showCreateForm(@LoginUser User user) {
         return "/qna/form";
     }
 
     @DeleteMapping("/{id}")
-    public String delete(@LoginUser(required = false) User user, @PathVariable long id) throws CannotDeleteException {
-        if (user.isGuestUser()) {
-            return "/qna/unauthenticated";
-        }
-
+    public String delete(@LoginUser User user, @PathVariable long id) throws CannotDeleteException {
         try {
             qnaService.deleteQuestion(user, id);
             return "redirect:/";
         } catch (UnAuthorizedException ex) {
-            return "/qna/unauthorized";
+            return "/unauthorized";
         }
     }
 
     @GetMapping("/{id}/form")
-    public String updateForm(@LoginUser(required = false) User user, @PathVariable long id, Model model) {
-        if (user.isGuestUser()) {
-            return "/qna/unauthenticated";
-        }
-
-        Question question = qnaService.findById(id, user).orElse(null);
+    public String updateForm(@LoginUser User user, @PathVariable long id, Model model) {
+        Question question = qnaService.findById(id, user);
 
         if (question == null) {
-            return "/qna/unauthorized";
+            return "/unauthorized";
         }
 
         model.addAttribute("question", question);
@@ -68,16 +56,12 @@ public class QnaController {
     }
 
     @PutMapping("/{id}")
-    public String update(@LoginUser(required = false) User user, @PathVariable long id, @Valid Question updatedQuestion) {
-        if (user.isGuestUser()) {
-            return "/qna/unauthenticated";
-        }
-
+    public String update(@LoginUser User user, @PathVariable long id, @Valid Question updatedQuestion) {
         try {
             Question question = qnaService.update(user, id, updatedQuestion);
             return "redirect:" + question.generateUrl();
         } catch (UnAuthorizedException ex) {
-            return "/qna/unauthorized";
+            return "/unauthorized";
         }
 
     }

@@ -1,7 +1,7 @@
 package codesquad.service;
 
 import codesquad.CannotDeleteException;
-import codesquad.ResourceNotFound;
+import codesquad.ResourceNotFoundException;
 import codesquad.UnAuthorizedException;
 import codesquad.domain.*;
 import org.slf4j.Logger;
@@ -37,14 +37,14 @@ public class QnaService {
         return questionRepository.findById(id);
     }
 
-    public Optional<Question> findById(long id, User user) {
-        return questionRepository.findByIdAndWriter(id, user);
+    public Question findById(long id, User user) {
+        return questionRepository.findByIdAndWriter(id, user).orElse(null);
     }
 
     @Transactional
     public Question update(User loginUser, long id, Question updatedQuestion) {
         Question origin = questionRepository.findById(id)
-                .orElseThrow(ResourceNotFound::new);
+                .orElseThrow(ResourceNotFoundException::new);
 
         origin.update(loginUser, updatedQuestion);
 
