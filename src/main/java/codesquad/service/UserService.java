@@ -1,6 +1,6 @@
 package codesquad.service;
 
-import codesquad.UnAuthenticationException;
+import codesquad.LoginFailException;
 import codesquad.UnAuthorizedException;
 import codesquad.domain.User;
 import codesquad.domain.UserRepository;
@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import javax.naming.AuthenticationException;
 import java.util.List;
 
 @Service("userService")
@@ -37,9 +36,9 @@ public class UserService {
         return userRepository.findAll();
     }
 
-    public User login(String userId, String password) throws UnAuthenticationException {
+    public User login(String userId, String password) throws LoginFailException {
         return userRepository.findByUserId(userId)
                 .filter(u -> u.matchPassword(password))
-                .orElseThrow(UnAuthenticationException::new);
+                .orElseThrow(LoginFailException::new);
     }
 }

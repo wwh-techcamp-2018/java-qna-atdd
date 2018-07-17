@@ -36,14 +36,17 @@ public class QnaService {
     }
 
     @Transactional
-    public Question update(User loginUser, long id, Question updatedQuestion) {
-        // TODO 수정 기능 구현
-        return null;
+    public void update(User loginUser, long id, Question updatedQuestion) {
+        // TODO: 2018. 7. 17. 존재하지 않는 질문에 대해서 예외처리가 필요합니다.
+        Question question = questionRepository.findById(id).get();
+        question.update(loginUser, updatedQuestion);
     }
 
     @Transactional
     public void deleteQuestion(User loginUser, long questionId) throws CannotDeleteException {
-        // TODO 삭제 기능 구현
+        // TODO: 2018. 7. 17. 존재하지 않는 질문에 대해서 예외처리 핸들러가 필요합니다.
+        Question question = questionRepository.findById(questionId).orElseThrow(CannotDeleteException::new);
+        question.delete(loginUser);
     }
 
     public Iterable<Question> findAll() {

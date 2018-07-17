@@ -1,5 +1,6 @@
 package codesquad.security;
 
+import codesquad.LoginFailException;
 import codesquad.UnAuthenticationException;
 import codesquad.UnAuthorizedException;
 import org.slf4j.Logger;
@@ -22,15 +23,23 @@ public class SecurityControllerAdvice {
     }
 
     @ExceptionHandler(UnAuthorizedException.class)
-    @ResponseStatus(value = HttpStatus.FORBIDDEN)
-    public void unAuthorized() {
+    @ResponseStatus(value = HttpStatus.OK)
+    public String unAuthorized() {
         log.debug("UnAuthorizedException is happened!");
+        return "redirect:/";
     }
 
     @ExceptionHandler(UnAuthenticationException.class)
-    @ResponseStatus(value = HttpStatus.UNAUTHORIZED)
+    @ResponseStatus(value = HttpStatus.OK)
     public String unAuthentication() {
         log.debug("UnAuthenticationException is happened!");
+        return "/user/login";
+    }
+
+    @ExceptionHandler(LoginFailException.class)
+    @ResponseStatus(value = HttpStatus.OK)
+    public String loginFailed() {
+        log.debug("LoginFailedException is happened!");
         return "/user/login_failed";
     }
 }
