@@ -1,6 +1,8 @@
 package codesquad.domain;
 
 import codesquad.CannotDeleteException;
+import codesquad.UnAuthorizedException;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import support.domain.AbstractEntity;
 import support.domain.UrlGeneratable;
 
@@ -16,6 +18,7 @@ public class Answer extends AbstractEntity implements UrlGeneratable {
 
     @ManyToOne
     @JoinColumn(foreignKey = @ForeignKey(name = "fk_answer_to_question"))
+    @JsonIgnore
     private Question question;
 
     @Size(min = 5)
@@ -69,10 +72,10 @@ public class Answer extends AbstractEntity implements UrlGeneratable {
         return deleted;
     }
 
-    public Answer delete(User user) throws CannotDeleteException {
+    public Answer delete(User user) {
         Optional.of(user)
                 .filter(this::isOwner)
-                .orElseThrow(() -> new CannotDeleteException("답변을 삭제할 수 없습니다."));
+                .orElseThrow(UnAuthorizedException::new);
         deleted = true;
         return this;
     }

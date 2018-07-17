@@ -84,10 +84,10 @@ public class Question extends AbstractEntity implements UrlGeneratable {
         return deleted;
     }
 
-    public void delete(User user) throws CannotDeleteException {
+    public void delete(User user) {
         Optional.of(user)
                 .filter(this::isOwner)
-                .orElseThrow(() -> new CannotDeleteException("질문을 삭제할 수 없습니다."));
+                .orElseThrow(UnAuthorizedException::new);
         deleted = true;
 
         for (Answer answer : answers) {

@@ -73,9 +73,9 @@ public class QnaService {
     }
 
     @Transactional
-    public Answer deleteAnswer(User loginUser, long id) throws CannotDeleteException {
+    public Answer deleteAnswer(User loginUser, long id) {
         return answerRepository.findByIdAndDeletedFalse(id)
-                .orElseThrow(() -> new CannotDeleteException("답변을 지울 수 없어요!"))
+                .orElseThrow(() -> new UnexpectedException("답변이 없어요!"))
                 .delete(loginUser);
     }
 }

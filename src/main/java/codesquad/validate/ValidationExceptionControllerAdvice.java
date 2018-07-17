@@ -1,5 +1,7 @@
 package codesquad.validate;
 
+import codesquad.CannotDeleteException;
+import codesquad.UnexpectedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -34,6 +36,14 @@ public class ValidationExceptionControllerAdvice {
         }
         return response;
     }
+
+    @ExceptionHandler(UnexpectedException.class)
+    @ResponseStatus(HttpStatus.GONE)
+    public ValidationErrorsResponse handleUnexpectedException(UnexpectedException exception) {
+        ValidationErrorsResponse response = new ValidationErrorsResponse();
+        return response;
+    }
+
 
     private String getErrorMessage(FieldError fieldError) {
         Optional<String> code = getFirstCode(fieldError);
