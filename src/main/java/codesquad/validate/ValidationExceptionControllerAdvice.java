@@ -1,18 +1,26 @@
 package codesquad.validate;
 
+import codesquad.CustomException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import javax.annotation.Resource;
+import javax.swing.*;
+import javax.validation.Valid;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestControllerAdvice
@@ -22,7 +30,9 @@ public class ValidationExceptionControllerAdvice {
     @Resource(name = "messageSourceAccessor")
     private MessageSourceAccessor msa;
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ExceptionHandler({
+            MethodArgumentNotValidException.class
+    })
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ValidationErrorsResponse handleValidationException(MethodArgumentNotValidException exception) {
         List<ObjectError> errors = exception.getBindingResult().getAllErrors();
@@ -52,5 +62,10 @@ public class ValidationExceptionControllerAdvice {
             return Optional.empty();
         }
         return Optional.of(codes[0]);
+    }
+    @ExceptionHandler(CustomException.class)
+    public String test(){
+        log.debug("@RestController called");
+        return null;
     }
 }

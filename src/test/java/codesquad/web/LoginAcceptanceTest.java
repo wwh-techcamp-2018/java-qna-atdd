@@ -87,6 +87,8 @@ public class LoginAcceptanceTest extends AcceptanceTest {
         HttpEntity<MultiValueMap<String, Object>> request = htmlFormDataBuilder.addParameter("userId", "javajigi")
                 .addParameter("password", "fail")
                 .build();
+
+
         ResponseEntity<String> response = template().postForEntity("/users/in", request, String.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
