@@ -40,7 +40,7 @@ public class Question extends AbstractEntity implements UrlGeneratable {
         this.contents = contents;
     }
 
-    public Question(int id, User writer, String title, String contents) {
+    public Question(long id, User writer, String title, String contents) {
         super(id);
         this.writer = writer;
         this.title = title;
@@ -109,5 +109,13 @@ public class Question extends AbstractEntity implements UrlGeneratable {
     @Override
     public String toString() {
         return "Question [id=" + getId() + ", title=" + title + ", contents=" + contents + ", writer=" + writer + "]";
+    }
+
+    public boolean equalsTitleAndContents(Question body) {
+        if (!title.equals(body.title))
+            return false;
+        if (!contents.equals(body.contents))
+            return false;
+        return true;
     }
 }

@@ -59,11 +59,17 @@ public class QnaService {
 
     public Answer addAnswer(User loginUser, long questionId, String contents) {
         // TODO 답변 추가 기능 구현
-        return null;
+        Question question = findById(questionId).orElseThrow(EntityNotFoundException::new);
+        Answer answer = new Answer(loginUser, contents);
+        question.addAnswer(answer);
+        questionRepository.save(question);
+        return answerRepository.save(answer);
     }
 
-    public Answer deleteAnswer(User loginUser, long id) {
-        // TODO 답변 삭제 기능 구현 
-        return null;
+    public Answer deleteAnswer(User loginUser, long id) throws CannotDeleteException {
+        // TODO 답변 삭제 기능 구현
+        Answer answer = answerRepository.findById(id).orElseThrow(EntityNotFoundException::new);
+        answer.delete(loginUser);
+        return answer;
     }
 }

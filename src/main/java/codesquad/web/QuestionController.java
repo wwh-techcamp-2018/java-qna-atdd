@@ -64,7 +64,8 @@ public class QuestionController {
         try {
             qnaService.deleteQuestion(loginUser, questionId);
         } catch (CannotDeleteException e) {
-            log.error(e.getMessage());
+            e.getMessage();
+            e.printStackTrace();
         }
         return "redirect:/";
     }
