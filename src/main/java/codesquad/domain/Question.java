@@ -1,5 +1,7 @@
 package codesquad.domain;
 
+import codesquad.CannotDeleteException;
+import codesquad.UnAuthorizedException;
 import org.hibernate.annotations.Where;
 import support.domain.AbstractEntity;
 import support.domain.UrlGeneratable;
@@ -38,6 +40,13 @@ public class Question extends AbstractEntity implements UrlGeneratable {
         this.contents = contents;
     }
 
+    public Question(long id, User writer, String title, String contents) {
+        super(id);
+        this.writer = writer;
+        this.title = title;
+        this.contents = contents;
+    }
+
     public String getTitle() {
         return title;
     }
@@ -69,12 +78,27 @@ public class Question extends AbstractEntity implements UrlGeneratable {
         answers.add(answer);
     }
 
+    public void update(User loginUser, Question target) {
+        if (!isOwner(loginUser)) {
+            throw new UnAuthorizedException();
+        }
+        this.title = target.title;
+        this.contents = target.contents;
+    }
+
     public boolean isOwner(User loginUser) {
         return writer.equals(loginUser);
     }
 
     public boolean isDeleted() {
         return deleted;
+    }
+
+    public void delete(User loginUser) throws CannotDeleteException {
+        if (!isOwner(loginUser)) {
+            throw new CannotDeleteException("you're not the question's owner");
+        }
+        deleted = true;
     }
 
     @Override
@@ -85,5 +109,13 @@ public class Question extends AbstractEntity implements UrlGeneratable {
     @Override
     public String toString() {
         return "Question [id=" + getId() + ", title=" + title + ", contents=" + contents + ", writer=" + writer + "]";
+    }
+
+    public boolean equalsTitleAndContents(Question body) {
+        if (!title.equals(body.title))
+            return false;
+        if (!contents.equals(body.contents))
+            return false;
+        return true;
     }
 }
