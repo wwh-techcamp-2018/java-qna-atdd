@@ -26,6 +26,7 @@ public class LoginUserHandlerMethodArgumentResolver implements HandlerMethodArgu
         if (loginUser.required()) {
             throw new UnAuthorizedException("You're required Login!");
         }
+
         return user;
     }
 }

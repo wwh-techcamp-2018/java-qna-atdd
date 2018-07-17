@@ -55,6 +55,7 @@ public class UserAcceptanceTest extends AcceptanceTest {
         ResponseEntity<String> response = template().getForEntity("/users", String.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         log.debug("body : {}", response.getBody());
+
         assertThat(response.getBody()).contains(defaultUser().getEmail());
     }
 
