@@ -40,8 +40,7 @@ public class QnaService {
     public Question update(User loginUser, long id, Question updatedQuestion) {
         // TODO 수정 기능 구현
         Question savedQuestion = questionRepository.findById(id).orElseThrow(UnAuthorizedException::new);
-        savedQuestion.update(loginUser, updatedQuestion);
-        return null;
+        return savedQuestion.update(loginUser, updatedQuestion);
     }
 
     @Transactional
@@ -59,13 +58,20 @@ public class QnaService {
         return questionRepository.findAll(pageable).getContent();
     }
 
+
+    @Transactional
     public Answer addAnswer(User loginUser, long questionId, String contents) {
         // TODO 답변 추가 기능 구현
-        return null;
+        Question savedQuestion = questionRepository.findById(questionId)
+                                    .orElseThrow(IllegalArgumentException::new);
+        return savedQuestion.addAnswer(new Answer(loginUser, contents));
     }
 
-    public Answer deleteAnswer(User loginUser, long id) {
-        // TODO 답변 삭제 기능 구현 
-        return null;
+    @Transactional
+    public Answer deleteAnswer(User loginUser, long id) throws CannotDeleteException {
+        // TODO 답변 삭제 기능 구현
+        Answer answer = answerRepository.findById(id)
+                .orElseThrow(IllegalArgumentException::new);
+        return answer.delete(loginUser);
     }
 }

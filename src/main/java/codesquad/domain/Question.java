@@ -1,6 +1,8 @@
 package codesquad.domain;
 
+import codesquad.CannotDeleteException;
 import codesquad.UnAuthorizedException;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.Where;
 import support.domain.AbstractEntity;
 import support.domain.UrlGeneratable;
@@ -24,6 +26,7 @@ public class Question extends AbstractEntity implements UrlGeneratable {
     @JoinColumn(foreignKey = @ForeignKey(name = "fk_question_writer"))
     private User writer;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "question", cascade = CascadeType.ALL)
     @Where(clause = "deleted = false")
     @OrderBy("id ASC")
@@ -38,6 +41,7 @@ public class Question extends AbstractEntity implements UrlGeneratable {
         this.title = title;
         this.contents = contents;
     }
+
 
     public String getTitle() {
         return title;
@@ -61,13 +65,18 @@ public class Question extends AbstractEntity implements UrlGeneratable {
         return writer;
     }
 
+    public List<Answer> getAnswers() {
+        return answers;
+    }
+
     public void writeBy(User loginUser) {
         this.writer = loginUser;
     }
 
-    public void addAnswer(Answer answer) {
+    public Answer addAnswer(Answer answer) {
         answer.toQuestion(this);
         answers.add(answer);
+        return answer;
     }
 
     public boolean isOwner(User loginUser) {
@@ -82,15 +91,16 @@ public class Question extends AbstractEntity implements UrlGeneratable {
         this.deleted = deleted;
     }
 
-    public void update(User loginUser, Question updatedQuestion) {
+    public Question update(User loginUser, Question updatedQuestion) {
         if (!isOwner(loginUser)) throw new UnAuthorizedException();
 
         setTitle(updatedQuestion.getTitle());
         setContents(updatedQuestion.getContents());
+        return this;
     }
 
-    public void delete(User loginUser) {
-        if (!isOwner(loginUser)) throw new UnAuthorizedException();
+    public void delete(User loginUser) throws CannotDeleteException {
+        if (!isOwner(loginUser)) throw new CannotDeleteException();
 
         setDeleted(true);
     }

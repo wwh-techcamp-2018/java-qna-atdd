@@ -1,5 +1,6 @@
 package codesquad.domain;
 
+import codesquad.CannotDeleteException;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -25,7 +26,7 @@ public class QuestionTest {
     }
 
     @Test
-    public void delete() {
+    public void delete() throws CannotDeleteException {
         question.delete(loginUser);
         assertThat(question.isDeleted()).isTrue();
     }

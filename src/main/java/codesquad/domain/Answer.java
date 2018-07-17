@@ -1,5 +1,6 @@
 package codesquad.domain;
 
+import codesquad.CannotDeleteException;
 import support.domain.AbstractEntity;
 import support.domain.UrlGeneratable;
 
@@ -55,6 +56,10 @@ public class Answer extends AbstractEntity implements UrlGeneratable {
         return this;
     }
 
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
+    }
+
     public void toQuestion(Question question) {
         this.question = question;
     }
@@ -75,5 +80,12 @@ public class Answer extends AbstractEntity implements UrlGeneratable {
     @Override
     public String toString() {
         return "Answer [id=" + getId() + ", writer=" + writer + ", contents=" + contents + "]";
+    }
+
+    public Answer delete(User loginUser) throws CannotDeleteException {
+        if (!isOwner(loginUser)) throw new CannotDeleteException();
+
+        setDeleted(true);
+        return this;
     }
 }
