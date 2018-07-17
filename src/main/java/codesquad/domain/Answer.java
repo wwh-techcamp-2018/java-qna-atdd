@@ -1,5 +1,7 @@
 package codesquad.domain;
 
+import codesquad.UnAuthorizedException;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import support.domain.AbstractEntity;
 import support.domain.UrlGeneratable;
 
@@ -42,6 +44,7 @@ public class Answer extends AbstractEntity implements UrlGeneratable {
         return writer;
     }
 
+    @JsonIgnore
     public Question getQuestion() {
         return question;
     }
@@ -75,5 +78,12 @@ public class Answer extends AbstractEntity implements UrlGeneratable {
     @Override
     public String toString() {
         return "Answer [id=" + getId() + ", writer=" + writer + ", contents=" + contents + "]";
+    }
+
+    public void delete(User loginUser) {
+        if(!writer.equals(loginUser)) {
+            throw new UnAuthorizedException();
+        }
+        this.deleted = true;
     }
 }

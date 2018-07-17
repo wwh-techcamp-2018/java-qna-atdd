@@ -85,10 +85,10 @@ public class UserAcceptanceTest extends AcceptanceTest {
     }
 
     private ResponseEntity<String> update(TestRestTemplate template) throws Exception {
-        formDataBuilder.addParameter("_method", "put");
-        formDataBuilder.addParameter("password", "test");
-        formDataBuilder.addParameter("name", "자바지기2");
-        formDataBuilder.addParameter("email", "javajigi@slipp.net");
+        formDataBuilder.addParameter("password", "test")
+                .addParameter("name", "자바지기2")
+                .addParameter("email", "javajigi@slipp.net")
+                .put();
 
         return template.postForEntity(String.format("/users/%d", defaultUser().getId()), formDataBuilder.build(), String.class);
     }

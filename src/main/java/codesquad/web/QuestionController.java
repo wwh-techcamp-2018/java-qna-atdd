@@ -34,7 +34,7 @@ public class QuestionController {
         return "/qna/updateForm";
     }
 
-    @GetMapping("/{id:[\\d+]}")
+    @GetMapping("/{id:\\d+}")
     public String showQuestionDetail(@PathVariable Long id, Model model) {
         Optional<Question> maybeQuestion = questionService.findById(id);
         if (!maybeQuestion.isPresent()) {
@@ -52,13 +52,13 @@ public class QuestionController {
         return "redirect:/";
     }
 
-    @PutMapping("/{id:[\\d+]}")
+    @PutMapping("/{id:\\d+}")
     public String update(@LoginUser User loginUser, @PathVariable Long id, @Valid Question question) {
         questionService.update(loginUser, id, question);
         return "redirect:/questions/" + id;
     }
 
-    @DeleteMapping("/{id:[\\d+]}")
+    @DeleteMapping("/{id:\\d+}")
     public String delete(@LoginUser User loginUser, @PathVariable Long id) {
         try {
             questionService.deleteQuestion(loginUser, id);

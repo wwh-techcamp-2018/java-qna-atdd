@@ -27,6 +27,8 @@ public class QnaServiceTest {
 
     @Mock
     private QuestionRepository questionRepository;
+    @Mock
+    private AnswerRepository answerRepository;
 
     @Before
     public void setUp() throws Exception {
@@ -102,6 +104,13 @@ public class QnaServiceTest {
 
     @Test
     public void addAnswer() {
+        Answer answer = new Answer(0L, UserTest.TEST_USER, question, "contents");
+
+        when(questionRepository.findById(question.getId())).thenReturn(Optional.of(question));
+        when(answerRepository.save(answer)).thenReturn(answer);
+
+        Answer newAnswer = questionService.addAnswer(UserTest.TEST_USER, question.getId(), "contents");
+        assertThat(newAnswer).isEqualTo(answer);
     }
 
     @Test

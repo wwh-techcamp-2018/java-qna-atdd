@@ -43,7 +43,7 @@ public class UserController {
         return "/user/list";
     }
 
-    @GetMapping("/{id:[\\d+]}/form")
+    @GetMapping("/{id:\\d+}/form")
     public String updateForm(@LoginUser User loginUser, @PathVariable long id, Model model) {
         model.addAttribute("user", userService.findById(loginUser, id));
         return "/user/updateForm";
@@ -61,7 +61,7 @@ public class UserController {
 
     }
 
-    @PutMapping("/{id:[\\d+]}")
+    @PutMapping("/{id:\\d+}")
     public String update(@LoginUser User loginUser, @PathVariable long id, User target) {
         userService.update(loginUser, id, target);
         return "redirect:/users";
