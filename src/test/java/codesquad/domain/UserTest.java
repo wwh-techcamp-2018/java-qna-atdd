@@ -6,8 +6,7 @@ import org.junit.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class UserTest {
-    public static final User JAVAJIGI = new User(1L, "javajigi", "password", "name", "javajigi@slipp.net");
-    public static final User SANJIGI = new User(2L, "sanjigi", "password", "name", "sanjigi@slipp.net");
+    public static final User TEST_USER = new User(1000L, "tester", "password", "tester", "tester@slipp.net");
 
     public static User newUser(Long id) {
         return new User(id, "userId", "pass", "name", "javajigi@slipp.net");

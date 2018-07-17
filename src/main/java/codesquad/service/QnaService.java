@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import javax.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.Optional;
 
@@ -37,13 +38,18 @@ public class QnaService {
 
     @Transactional
     public Question update(User loginUser, long id, Question updatedQuestion) {
-        // TODO 수정 기능 구현
-        return null;
+        Question question = questionRepository.findById(id).orElseThrow(EntityNotFoundException::new);
+        return question.update(loginUser, updatedQuestion);
+//        return questionRepository.save(question);
     }
 
     @Transactional
     public void deleteQuestion(User loginUser, long questionId) throws CannotDeleteException {
-        // TODO 삭제 기능 구현
+        Question question = questionRepository
+                .findById(questionId)
+                .orElseThrow(() -> new CannotDeleteException("Question not Found"));
+
+        question.delete(loginUser);
     }
 
     public Iterable<Question> findAll() {
@@ -63,4 +69,5 @@ public class QnaService {
         // TODO 답변 삭제 기능 구현 
         return null;
     }
+
 }
