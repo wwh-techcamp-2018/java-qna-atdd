@@ -6,6 +6,7 @@ import support.domain.AbstractEntity;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.validation.Valid;
 import javax.validation.constraints.Size;
 import java.util.Objects;
 
@@ -91,7 +92,6 @@ public class User extends AbstractEntity {
         this.name = target.name;
         this.email = target.email;
     }
-
     private boolean matchUserId(String userId) {
         return this.userId.equals(userId);
     }
