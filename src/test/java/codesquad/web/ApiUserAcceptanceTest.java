@@ -13,9 +13,7 @@ public class ApiUserAcceptanceTest extends AcceptanceTest {
     @Test
     public void create() throws Exception {
         User newUser = newUser("testuser1");
-        ResponseEntity<Void> response = template().postForEntity("/api/users", newUser, Void.class);
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
-        String location = response.getHeaders().getLocation().getPath();
+        String location = createResource("/api/users", newUser);
 
         User dbUser = basicAuthTemplate(findByUserId(newUser.getUserId())).getForObject(location, User.class);
         assertThat(dbUser).isNotNull();
@@ -24,11 +22,9 @@ public class ApiUserAcceptanceTest extends AcceptanceTest {
     @Test
     public void show_다른_사람() throws Exception {
         User newUser = newUser("testuser2");
-        ResponseEntity<Void> response = template().postForEntity("/api/users", newUser, Void.class);
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
-        String location = response.getHeaders().getLocation().getPath();
+        String location = createResource("/api/users", newUser);
 
-        response = basicAuthTemplate(defaultUser()).getForEntity(location, Void.class);
+        ResponseEntity<Void> response = basicAuthTemplate(defaultUser()).getForEntity(location, Void.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
     }
 
@@ -65,9 +61,4 @@ public class ApiUserAcceptanceTest extends AcceptanceTest {
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
     }
 
-    private HttpEntity createHttpEntity(Object body) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        return new HttpEntity(body, headers);
-    }
 }
