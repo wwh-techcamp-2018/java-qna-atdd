@@ -1,5 +1,6 @@
 package codesquad.domain;
 
+import codesquad.CannotDeleteException;
 import codesquad.UnAuthorizedException;
 import org.junit.Test;
 
@@ -35,7 +36,7 @@ public class QuestionTest {
         assertThat(question.isDeleted()).isTrue();
     }
 
-    @Test(expected = UnAuthorizedException.class)
+    @Test(expected = CannotDeleteException.class)
     public void delete_not_owner() throws Exception {
         User loginUser = other;
         question.delete(loginUser);

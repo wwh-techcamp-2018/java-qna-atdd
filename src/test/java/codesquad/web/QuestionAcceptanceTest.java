@@ -133,6 +133,25 @@ public class QuestionAcceptanceTest extends AcceptanceTest {
         assertThat(response.getHeaders().getLocation().getPath()).startsWith("/");
     }
 
+    @Test
+    public void delete_other() {
+        User other = new User(2L, "sanjigi", "test", "name", "sanjigi@slipp.net");
+        long questionId = getDefaultQuestionId();
+
+        HttpEntity<MultiValueMap<String, Object>> request = HtmlFormDataBuilder.urlEncodedForm()
+                .delete()
+                .build();
+
+        String url = String.format("/questions/%d", questionId);
+
+        ResponseEntity<String> response = basicAuthTemplate(other)
+                                        .postForEntity(url, request, String.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FOUND);
+        log.debug("response path: {}", response.getHeaders().getLocation().getPath());
+        assertThat(response.getHeaders().getLocation().getPath()).startsWith("/");
+    }
+
     private long getDefaultQuestionId() {
         return questionRepository.findAll().stream()
                 .filter(question -> question.isOwner(defaultUser()))
