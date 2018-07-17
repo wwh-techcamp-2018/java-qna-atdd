@@ -19,12 +19,12 @@ public class ApiUserController {
     private UserService userService;
 
     @PostMapping("")
-    public ResponseEntity<Void> create(@Valid @RequestBody User user) {
+    public ResponseEntity<User> create(@Valid @RequestBody User user) {
         User savedUser = userService.add(user);
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setLocation(URI.create("/api/users/" + savedUser.getId()));
-        return new ResponseEntity<Void>(headers, HttpStatus.CREATED);
+//        HttpHeaders headers = new HttpHeaders();
+//        headers.setLocation(URI.create("/api/users/" + savedUser.getId()));
+        return ResponseEntity.created(URI.create("/api/users/" + savedUser.getId())).body(savedUser);
     }
 
     @GetMapping("{id}")
