@@ -9,7 +9,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.internal.bytebuddy.matcher.ElementMatchers.is;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
@@ -57,5 +62,24 @@ public abstract class AcceptanceTest {
 
     protected Question findByQuestionId(long questionId) {
         return questionRepository.findById(questionId).get();
+    }
+
+    protected String createResource(String path, Object bodyPayload) {
+        ResponseEntity<String> response = basicAuthTemplate(defaultUser()).postForEntity(path, bodyPayload, String.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        return response.getHeaders().getLocation().getPath();
+    }
+
+    protected void createResourceWithoutLogin(String path, Object bodyPayload) {
+        ResponseEntity<String> response = template.postForEntity(path, bodyPayload, String.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+    }
+
+    protected <T> T getResource(String location, Class<T> responseType) {
+        return template.getForObject(location, responseType);
+    }
+
+    protected <T> T getResource(String location, Class<T> responseType, User loginUser) {
+        return basicAuthTemplate(loginUser).getForObject(location, responseType);
     }
 }

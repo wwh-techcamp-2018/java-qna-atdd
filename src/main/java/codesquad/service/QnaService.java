@@ -68,13 +68,18 @@ public class QnaService {
         return questionRepository.findAll(pageable).getContent();
     }
 
+    @Transactional
     public Answer addAnswer(User loginUser, long questionId, String contents) {
-        // TODO 답변 추가 기능 구현
-        return null;
+        Answer answer = new Answer(loginUser, contents);
+        Question question = questionRepository.findById(questionId).orElseThrow(ResourceNotFoundException::new);
+        question.addAnswer(answer);
+        return answer;
     }
 
+    @Transactional
     public Answer deleteAnswer(User loginUser, long id) {
-        // TODO 답변 삭제 기능 구현 
-        return null;
+        Answer deletedAnswer = answerRepository.findById(id).filter(answer -> answer.isOwner(loginUser)).orElseThrow(UnAuthorizedException::new);
+        answerRepository.delete(deletedAnswer);
+        return deletedAnswer;
     }
 }
