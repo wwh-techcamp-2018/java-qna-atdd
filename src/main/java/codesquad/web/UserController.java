@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
 import java.util.List;
+import java.util.Optional;
 
 @Controller
 @RequestMapping("/users")
@@ -54,11 +55,19 @@ public class UserController {
         return "redirect:/users";
     }
 
+    @GetMapping("/login")
+    public String loginForm(@LoginUser User user) {
+        if (Optional.ofNullable(user).isPresent()) {
+            return "redirect:/home";
+        }
+        return "/user/login";
+    }
+
     @PostMapping("/login")
-    public String login(String userId, String password, HttpSession httpSession){
+    public String login(String userId, String password, HttpSession httpSession) {
         try {
-            User user = userService.login(userId,password);
-            httpSession.setAttribute(HttpSessionUtils.USER_SESSION_KEY,user);
+            User user = userService.login(userId, password);
+            httpSession.setAttribute(HttpSessionUtils.USER_SESSION_KEY, user);
             return "redirect:/users";
         } catch (UnAuthenticationException e) {
             e.printStackTrace();

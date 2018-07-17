@@ -1,36 +1,19 @@
 package codesquad.web;
 
 import codesquad.domain.User;
-import codesquad.domain.UserRepository;
-import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.*;
-import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import support.builder.HtmlFormDataBuilder;
 import support.test.AcceptanceTest;
-
-import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class UserAcceptanceTest extends AcceptanceTest {
+
     private static final Logger log = LoggerFactory.getLogger(UserAcceptanceTest.class);
-
-    @Autowired
-    private UserRepository userRepository;
-
-    private HtmlFormDataBuilder htmlFormDataBuilder;
-
-    @Before
-    public void setUp() throws Exception {
-        htmlFormDataBuilder = HtmlFormDataBuilder.urlEncodeForm();
-    }
-
 
     @Test
     public void createForm() throws Exception {
@@ -42,16 +25,16 @@ public class UserAcceptanceTest extends AcceptanceTest {
     @Test
     public void create() throws Exception {
         String userId = "testuser";
-        htmlFormDataBuilder.addParameter("userId", userId);
-        htmlFormDataBuilder.addParameter("password", "password");
-        htmlFormDataBuilder.addParameter("name", "자바지기");
-        htmlFormDataBuilder.addParameter("email", "javajigi@slipp.net");
-        HttpEntity<MultiValueMap<String, Object>> request =htmlFormDataBuilder.build();
+        HttpEntity<MultiValueMap<String, Object>> request = htmlFormDataBuilder.addParameter("userId", userId)
+                .addParameter("password", "password")
+                .addParameter("name", "자바지기")
+                .addParameter("email", "javajigi@slipp.net")
+                .build();
 
         ResponseEntity<String> response = template().postForEntity("/users", request, String.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FOUND);
-        assertThat(userRepository.findByUserId(userId).isPresent()).isTrue();
+        assertThat(findByUserId(userId).getUserId()).isEqualTo(userId);
         assertThat(response.getHeaders().getLocation().getPath()).startsWith("/users");
     }
 
@@ -59,14 +42,13 @@ public class UserAcceptanceTest extends AcceptanceTest {
     public void list() throws Exception {
         ResponseEntity<String> response = template().getForEntity("/users", String.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        log.debug("body : {}", response.getBody());
         assertThat(response.getBody()).contains(defaultUser().getEmail());
     }
 
     @Test
     public void updateForm_no_login() throws Exception {
-        ResponseEntity<String> response = template().getForEntity(String.format("/users/%d/form", defaultUser().getId()),
-                String.class);
+        ResponseEntity<String> response = template()
+                .getForEntity(String.format("/users/%d/form", defaultUser().getId()), String.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
     }
 
@@ -85,20 +67,22 @@ public class UserAcceptanceTest extends AcceptanceTest {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
     }
 
-    private ResponseEntity<String> update(TestRestTemplate template) throws Exception {
-        htmlFormDataBuilder.addParameter("_method", "put");
-        htmlFormDataBuilder.addParameter("password", "test");
-        htmlFormDataBuilder.addParameter("name", "자바지기2");
-        htmlFormDataBuilder.addParameter("email", "javajigi@slipp.net");
-        HttpEntity<MultiValueMap<String, Object>> request = htmlFormDataBuilder.build();
-
-        return template.postForEntity(String.format("/users/%d", defaultUser().getId()), request, String.class);
-    }
-
     @Test
     public void update() throws Exception {
         ResponseEntity<String> response = update(basicAuthTemplate());
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FOUND);
         assertThat(response.getHeaders().getLocation().getPath()).startsWith("/users");
     }
+
+    private ResponseEntity<String> update(TestRestTemplate template) throws Exception {
+        HttpEntity<MultiValueMap<String, Object>> request = htmlFormDataBuilder.put()
+                .addParameter("userId", "javajigi")
+                .addParameter("password", "test")
+                .addParameter("name", "자바지기2")
+                .addParameter("email", "javajigi@slipp.net")
+                .build();
+
+        return template.postForEntity(String.format("/users/%d", defaultUser().getId()), request, String.class);
+    }
+
 }

@@ -24,26 +24,24 @@ public class UserTest {
     @Test
     public void update_owner() throws Exception {
         User origin = newUser("sanjigi");
-        User loginUser = origin;
         User target = new User("sanjigi", "password", "name2", "javajigi@slipp.net2");
-        origin.update(loginUser, target);
+        origin.update(target);
         assertThat(origin.getName()).isEqualTo(target.getName());
         assertThat(origin.getEmail()).isEqualTo(target.getEmail());
     }
 
     @Test(expected = UnAuthorizedException.class)
     public void update_not_owner() throws Exception {
-        User origin = newUser("sanjigi");
-        User loginUser = newUser("javajigi");
+        User origin = newUser("javajigi");
         User target = new User("sanjigi", "password", "name2", "javajigi@slipp.net2");
-        origin.update(loginUser, target);
+        origin.update(target);
     }
 
     @Test
     public void update_match_password() {
         User origin = newUser("sanjigi");
         User target = new User("sanjigi", "password", "name2", "javajigi@slipp.net2");
-        origin.update(origin, target);
+        origin.update(target);
         assertThat(origin.getName()).isEqualTo(target.getName());
         assertThat(origin.getEmail()).isEqualTo(target.getEmail());
     }
@@ -52,6 +50,7 @@ public class UserTest {
     public void update_mismatch_password() {
         User origin = newUser("sanjigi", "password");
         User target = new User("sanjigi", "password2", "name2", "javajigi@slipp.net2");
-        origin.update(origin, target);
+        origin.update(target);
     }
+
 }

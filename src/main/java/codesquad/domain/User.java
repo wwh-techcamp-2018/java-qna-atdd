@@ -79,8 +79,8 @@ public class User extends AbstractEntity {
         return this;
     }
 
-    public void update(User loginUser, User target) {
-        if (!matchUserId(loginUser.getUserId())) {
+    public void update(User target) {
+        if (!matchUserId(target.getUserId())) {
             throw new UnAuthorizedException();
         }
 

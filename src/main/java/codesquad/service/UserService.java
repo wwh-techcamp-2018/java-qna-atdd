@@ -23,7 +23,7 @@ public class UserService {
     @Transactional
     public User update(User loginUser, long id, User updatedUser) {
         User original = findById(loginUser, id);
-        original.update(loginUser, updatedUser);
+        original.update(updatedUser);
         return original;
     }
 
@@ -38,7 +38,6 @@ public class UserService {
     }
 
     public User login(String userId, String password) throws UnAuthenticationException{
-        // TODO 로그인 기능 구현
         return userRepository.findByUserId(userId)
                 .filter(user -> user.matchPassword(password))
                 .orElseThrow(UnAuthenticationException::new);
