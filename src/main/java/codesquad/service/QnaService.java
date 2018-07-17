@@ -65,14 +65,22 @@ public class QnaService {
         return questionRepository.findAll(pageable).getContent();
     }
 
+    @Transactional
     public Answer addAnswer(User loginUser, long questionId, String contents) {
-        // TODO 답변 추가 기능 구현
-        return null;
+        Answer answer = new Answer(loginUser, contents);
+        Question question = questionRepository.findById(questionId).get();
+        question.addAnswer(answer);
+        return answer;
     }
 
+    @Transactional
     public Answer deleteAnswer(User loginUser, long id) {
-        // TODO 답변 삭제 기능 구현 
-        return null;
+        Answer answer = answerRepository.findById(id).get();
+        if (!answer.isOwner(loginUser)) {
+            throw new CannotDeleteException("다른 사람의 답변을 삭제할 수 없습니다.");
+        }
+        answer.delete();
+        return answer;
     }
 
 
