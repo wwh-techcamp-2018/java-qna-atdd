@@ -53,6 +53,7 @@ public class UserController {
         }
     }
 
+    // @LoginUser 는 required 가 true 가 디폴트이기 때문에 login 된 user 가 아니면 예외가 발생한다.
     @GetMapping("/{id}/form")
     public String updateForm(@LoginUser User loginUser, @PathVariable long id, Model model) {
         model.addAttribute("user", userService.findById(loginUser, id));
