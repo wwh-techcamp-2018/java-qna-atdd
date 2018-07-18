@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.Optional;
 
 
 //다양한 기능들을 조합하기 위해 사용. (EmailService, Repository ...)
@@ -46,5 +47,5 @@ public class UserService {
         return userRepository.findByUserId(userId)
                 .filter(user -> user.matchPassword(password))
                 .orElseThrow(UnAuthenticationException::new);
-    }
+
 }

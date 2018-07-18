@@ -1,18 +1,13 @@
 package codesquad.web;
 
-
-import com.sun.deploy.net.HttpResponse;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.*;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import support.test.AcceptanceTest;
 
-import java.lang.reflect.MalformedParameterizedTypeException;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -51,5 +46,4 @@ public class LoginAcceptanceTest extends AcceptanceTest {
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody().contains("아이디 또는 비밀번호가 틀립니다. 다시 로그인 해주세요.")).isEqualTo(true);
-    }
 }

@@ -62,10 +62,8 @@ public class UserController {
             HttpSessionUtils.setUserInSession(httpSession, loginUser);
             return "redirect:/users";
         }catch(UnAuthenticationException e){
-            System.out.println("exception is true");
             return "/user/login_failed";
         }
 
     }
-
 }
