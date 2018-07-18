@@ -44,15 +44,11 @@ public class ApiQuestionAcceptanceTest extends AcceptanceTest {
 
     @Test
     public void create() {
-        ResponseEntity<Void> responseEntity = basicAuthTemplate(defaultUser())
-                .postForEntity("/api/questions",question, Void.class);
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.CREATED);
 
-        String location = responseEntity.getHeaders().getLocation().getPath();
+        String location = createResource("/api/questions", question);
         assertThat(location).isEqualTo("/api" + question.generateUrl());
 
-        Question saveQuestion = basicAuthTemplate(defaultUser())
-                .getForObject(location, Question.class);
+        Question saveQuestion = getResource(location, Question.class, defaultUser());
 
         assertThat(saveQuestion.getTitle()).isEqualTo(question.getTitle());
         assertThat(saveQuestion.getContents()).isEqualTo(question.getContents());

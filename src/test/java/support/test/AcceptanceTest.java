@@ -8,14 +8,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.MultiValueMap;
 
 import java.util.Map;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
@@ -74,5 +73,16 @@ public abstract class AcceptanceTest {
                 .method(method)
                 .addParameters(params)
                 .bulid();
+    }
+
+    protected String createResource(String path, Object body){
+        ResponseEntity<Void> response = template().postForEntity(path, body, Void.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        return response.getHeaders().getLocation().getPath();
+
+    }
+
+    protected <T> T getResource(String location, Class<T> responseType, User loginUser) {
+        return basicAuthTemplate(loginUser).getForObject(location, responseType);
     }
 }
