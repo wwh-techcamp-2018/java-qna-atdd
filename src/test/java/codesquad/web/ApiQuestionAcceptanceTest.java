@@ -117,10 +117,4 @@ public class ApiQuestionAcceptanceTest extends AcceptanceTest {
 
 
 
-    private HttpEntity createHttpEntity(Object body) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        return new HttpEntity(body, headers);
-    }
-
 }

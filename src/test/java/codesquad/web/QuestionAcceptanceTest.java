@@ -27,7 +27,6 @@ public class QuestionAcceptanceTest extends AcceptanceTest {
     private Question question;
     private Question updateQuestion;
 
-    private HtmlFormDataBuilder builder;
     private Map<String,Object> params;
 
     @Before
@@ -122,17 +121,5 @@ public class QuestionAcceptanceTest extends AcceptanceTest {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
     }
 
-    private ResponseEntity<String> basicAuthPostRequest(String url, User user, Map params, String method){
-        HttpEntity<MultiValueMap<String,Object>> request = makeRequest(method, params);
-        return basicAuthTemplate(user)
-                .postForEntity(url, request, String.class);
-    }
-
-    private HttpEntity<MultiValueMap<String,Object>> makeRequest(String method, Map params){
-        return builder
-                .method(method)
-                .addParameters(params)
-                .bulid();
-    }
 
 }
