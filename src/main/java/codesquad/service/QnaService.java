@@ -15,6 +15,7 @@ import java.util.Optional;
 
 @Service("qnaService")
 public class QnaService {
+
     private static final Logger log = LoggerFactory.getLogger(QnaService.class);
 
     @Resource(name = "questionRepository")
@@ -40,6 +41,12 @@ public class QnaService {
         return questionRepository.findByIdAndDeletedFalse(id);
     }
 
+    public Optional<Answer> findAnswerById(long id, User writer) {
+        return answerRepository.findByIdAndDeletedFalse(id).filter(answer -> answer.isOwner(writer));
+    }
+
+    public Optional<Answer> findAnswerById(long id) {
+        return answerRepository.findByIdAndDeletedFalse(id);
     }
 
     @Transactional
@@ -55,6 +62,19 @@ public class QnaService {
         question.delete(loginUser);
     }
 
+    public Answer addAnswer(User loginUser, long questionId, String contents) {
+        Question question = findQuestionById(questionId).orElseThrow(EntityNotFoundException::new);
+        Answer newAnswer = new Answer(loginUser, contents);
+        newAnswer.setQuestion(question);
+        question.addAnswer(newAnswer);
+        return answerRepository.save(newAnswer);
+    }
+
+    public void deleteAnswer(User loginUser, long id) throws CannotDeleteException {
+        Answer answer = findAnswerById(id).orElseThrow(EntityNotFoundException::new);
+        answer.delete(loginUser);
+    }
+
     public List<Question> findAll() {
         return questionRepository.findByDeleted(false);
     }
@@ -63,13 +83,4 @@ public class QnaService {
         return questionRepository.findAll(pageable).getContent();
     }
 
-    public Answer addAnswer(User loginUser, long questionId, String contents) {
-        // TODO 답변 추가 기능 구현
-        return null;
-    }
-
-    public Answer deleteAnswer(User loginUser, long id) {
-        // TODO 답변 삭제 기능 구현 
-        return null;
-    }
 }

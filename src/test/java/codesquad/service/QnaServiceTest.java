@@ -18,18 +18,28 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class QnaServiceTest {
 
+    private static final String ANSWER_CONTENTS = "I am answer";
+
     @Mock
     private QuestionRepository questionRepository;
+
+    @Mock
+    private AnswerRepository answerRepository;
 
     @InjectMocks
     private QnaService qnaService;
 
     private Question question;
 
+    private Answer answer;
+
     @Before
     public void setUp() throws Exception {
         question = QuestionTest.question;
-        when(questionRepository.findById(question.getId())).thenReturn(Optional.of(question));
+        answer = new Answer(UserTest.JAVAJIGI, ANSWER_CONTENTS);
+        when(questionRepository.findByIdAndDeletedFalse(question.getId())).thenReturn(Optional.of(question));
+        when(answerRepository.save(answer)).thenReturn(answer);
+        when(answerRepository.findByIdAndDeletedFalse(answer.getId())).thenReturn(Optional.of(answer));
     }
 
     @Test
@@ -63,6 +73,28 @@ public class QnaServiceTest {
     @Test(expected = CannotDeleteException.class)
     public void delete_failed_when_user_guest() throws Exception {
         qnaService.deleteQuestion(User.GUEST_USER, question.getId());
+    }
+
+    @Test
+    public void addAnswer() {
+        Answer createdAnswer = qnaService.addAnswer(UserTest.JAVAJIGI, question.getId(), ANSWER_CONTENTS);
+        assertThat(createdAnswer.getContents()).isEqualTo(ANSWER_CONTENTS);
+    }
+
+    @Test
+    public void deleteAnswer_success() throws CannotDeleteException {
+        qnaService.deleteAnswer(UserTest.JAVAJIGI, answer.getId());
+        assertThat(answer.isDeleted()).isTrue();
+    }
+
+    @Test(expected = CannotDeleteException.class)
+    public void deleteAnswer_failed_when_user_not_writer() throws CannotDeleteException {
+        qnaService.deleteAnswer(UserTest.SANJIGI, answer.getId());
+    }
+
+    @Test(expected = CannotDeleteException.class)
+    public void deleteAnswer_failed_when_user_no_login() throws CannotDeleteException {
+        qnaService.deleteAnswer(User.GUEST_USER, answer.getId());
     }
 
 }
