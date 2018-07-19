@@ -1,7 +1,6 @@
 package codesquad.web;
 
 import codesquad.CannotDeleteException;
-import codesquad.UnAuthenticationException;
 import codesquad.UnAuthorizedException;
 import codesquad.domain.Question;
 import codesquad.domain.User;
@@ -16,28 +15,17 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import javax.persistence.EntityNotFoundException;
 import java.util.List;
-import java.util.Optional;
 
 @Controller
 @RequestMapping("/questions")
 public class QuestionController {
+
     private static final Logger log = LoggerFactory.getLogger(QuestionController.class);
 
     @Resource(name = "qnaService")
     private QnaService qnaService;
 
-    @GetMapping("/form")
-    public String form(@LoginUser User user) {
-        return "/qna/form";
-    }
-
-    @PostMapping("")
-    public String create(@LoginUser User user, Question question) {
-        qnaService.create(user, question);
-        return "redirect:/questions";
-    }
-
-    @GetMapping("")
+    @GetMapping
     public String list(Model model) {
         List<Question> questions = qnaService.findAll();
         log.debug("question size : {}", questions.size());
@@ -45,28 +33,40 @@ public class QuestionController {
         return "/home";
     }
 
-    @GetMapping("/{id:[\\d+]}/form")
+    @PostMapping
+    public String create(@LoginUser User user, Question question) {
+        qnaService.create(user, question);
+        return "redirect:/questions";
+    }
+
+    @GetMapping("/form")
+    public String form(@LoginUser User user) {
+        return "/qna/form";
+    }
+
+    @GetMapping("/{id:\\d+}/form")
     public String updateForm(@LoginUser User loginUser, @PathVariable long id, Model model) {
-        model.addAttribute("question", qnaService.findById(id, loginUser).orElseThrow(UnAuthorizedException::new));
+        model.addAttribute("question", qnaService.findQuestionById(id, loginUser).orElseThrow(UnAuthorizedException::new));
         return "/qna/updateForm";
     }
 
-    @PutMapping("/{id:[\\d+]}")
+    @GetMapping("/{id:\\d+}")
+    public String show(@PathVariable long id, Model model) {
+        Question question = qnaService.findQuestionById(id).orElseThrow(EntityNotFoundException::new);
+        model.addAttribute("question", question);
+        return "/qna/show";
+    }
+
+    @PutMapping("/{id:\\d+}")
     public String update(@LoginUser User loginUser, @PathVariable long id, Question target) {
         qnaService.update(loginUser, id, target);
         return "redirect:/questions";
     }
 
-    @DeleteMapping("/{id:[\\d+]}")
+    @DeleteMapping("/{id:\\d+}")
     public String delete(@LoginUser User loginUser, @PathVariable long id) throws CannotDeleteException {
         qnaService.deleteQuestion(loginUser, id);
         return "redirect:/questions";
     }
 
-    @GetMapping("/{id:[\\d+]}")
-    public String show(@PathVariable long id, Model model) {
-        Question question = qnaService.findById(id).orElseThrow(EntityNotFoundException::new);
-        model.addAttribute("question", question);
-        return "/qna/show";
-    }
 }

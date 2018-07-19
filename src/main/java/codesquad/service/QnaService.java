@@ -32,24 +32,26 @@ public class QnaService {
         return questionRepository.save(question);
     }
 
-    public Optional<Question> findById(long id, User writer) {
-        return questionRepository.findById(id).filter(question -> question.isOwner(writer));
+    public Optional<Question> findQuestionById(long id, User writer) {
+        return questionRepository.findByIdAndDeletedFalse(id).filter(question -> question.isOwner(writer));
     }
 
-    public Optional<Question> findById(long id) {
-        return questionRepository.findById(id);
+    public Optional<Question> findQuestionById(long id) {
+        return questionRepository.findByIdAndDeletedFalse(id);
+    }
+
     }
 
     @Transactional
     public Question update(User loginUser, long id, Question updatedQuestion) {
-        Question question = questionRepository.findById(id).orElseThrow(EntityNotFoundException::new);
-        question.update(updatedQuestion,loginUser);
+        Question question = findQuestionById(id).orElseThrow(EntityNotFoundException::new);
+        question.update(updatedQuestion, loginUser);
         return question;
     }
 
     @Transactional
     public void deleteQuestion(User loginUser, long id) throws CannotDeleteException {
-        Question question = questionRepository.findById(id).orElseThrow(EntityNotFoundException::new);
+        Question question = findQuestionById(id).orElseThrow(EntityNotFoundException::new);
         question.delete(loginUser);
     }
 
