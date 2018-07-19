@@ -2,6 +2,7 @@ package codesquad.web;
 
 import codesquad.domain.User;
 import codesquad.domain.UserRepository;
+import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +14,8 @@ import org.springframework.util.MultiValueMap;
 import support.test.AcceptanceTest;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -21,6 +24,14 @@ public class UserAcceptanceTest extends AcceptanceTest {
 
     @Autowired
     private UserRepository userRepository;
+
+    private Map<String,Object> params;
+
+    @Before
+    public void setUp() throws Exception {
+        params = new HashMap<>();
+        builder = HtmlFormDataBuilder.urlEncodedForm();
+    }
 
     @Test
     public void createForm() throws Exception {
@@ -31,20 +42,13 @@ public class UserAcceptanceTest extends AcceptanceTest {
 
     @Test
     public void create() throws Exception {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setAccept(Arrays.asList(MediaType.TEXT_HTML));
-        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-
         String userId = "testuser";
-        MultiValueMap<String, Object> params = new LinkedMultiValueMap<>();
-        params.add("userId", userId);
-        params.add("password", "password");
-        params.add("name", "자바지기");
-        params.add("email", "javajigi@slipp.net");
-        HttpEntity<MultiValueMap<String, Object>> request = new HttpEntity<MultiValueMap<String, Object>>(params, headers);
+        params.put("userId", userId);
+        params.put("password", "password");
+        params.put("name", "자바지기");
+        params.put("email", "javajigi@slipp.net");
 
-        ResponseEntity<String> response = template().postForEntity("/users", request, String.class);
-
+        ResponseEntity<String> response = templatePostRequest("/users", params, HtmlFormDataBuilder.METHOD_POST);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FOUND);
         assertThat(userRepository.findByUserId(userId).isPresent()).isTrue();
         assertThat(response.getHeaders().getLocation().getPath()).startsWith("/users");
@@ -55,6 +59,7 @@ public class UserAcceptanceTest extends AcceptanceTest {
         ResponseEntity<String> response = template().getForEntity("/users", String.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         log.debug("body : {}", response.getBody());
+
         assertThat(response.getBody()).contains(defaultUser().getEmail());
     }
 

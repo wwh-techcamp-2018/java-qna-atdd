@@ -1,7 +1,10 @@
 package codesquad.service;
 
 import codesquad.CannotDeleteException;
+import codesquad.UnAuthenticationException;
+import codesquad.UnAuthorizedException;
 import codesquad.domain.*;
+import codesquad.security.LoginUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Pageable;
@@ -25,7 +28,7 @@ public class QnaService {
     @Resource(name = "deleteHistoryService")
     private DeleteHistoryService deleteHistoryService;
 
-    public Question create(User loginUser, Question question) {
+    public Question create(@LoginUser User loginUser, Question question) {
         question.writeBy(loginUser);
         log.debug("question : {}", question);
         return questionRepository.save(question);
@@ -38,12 +41,17 @@ public class QnaService {
     @Transactional
     public Question update(User loginUser, long id, Question updatedQuestion) {
         // TODO 수정 기능 구현
-        return null;
+        return questionRepository.findById(id)
+                .orElseThrow(UnAuthorizedException::new)
+                .update(loginUser, updatedQuestion);
     }
 
     @Transactional
     public void deleteQuestion(User loginUser, long questionId) throws CannotDeleteException {
         // TODO 삭제 기능 구현
+        questionRepository.findById(questionId)
+                .ifPresent(question -> question.delete(loginUser));
+
     }
 
     public Iterable<Question> findAll() {
@@ -56,7 +64,9 @@ public class QnaService {
 
     public Answer addAnswer(User loginUser, long questionId, String contents) {
         // TODO 답변 추가 기능 구현
-        return null;
+       return findById(questionId)
+               .orElseThrow(UnAuthorizedException::new)
+               .addAnswer(new Answer(loginUser, contents));
     }
 
     public Answer deleteAnswer(User loginUser, long id) {

@@ -11,8 +11,12 @@ import javax.annotation.Resource;
 import java.util.List;
 import java.util.Optional;
 
+
+//다양한 기능들을 조합하기 위해 사용. (EmailService, Repository ...)
+//Contorller에 집중된 역할을 분리하기 위해 사용.
 @Service("userService")
 public class UserService {
+
     @Resource(name = "userRepository")
     private UserRepository userRepository;
 
@@ -20,6 +24,7 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    //명시적으로 save 메서드를 호출하지 않아도 변경된 부분을 commit해준다.
     @Transactional
     public User update(User loginUser, long id, User updatedUser) {
         User original = findById(loginUser, id);
@@ -39,16 +44,8 @@ public class UserService {
 
     public User login(String userId, String password) throws UnAuthenticationException {
         // TODO 로그인 기능 구현
-        Optional<User> maybeUser = userRepository.findByUserId(userId);
-        if(!maybeUser.isPresent()) {
-            throw new UnAuthenticationException();
-        }
-        User user = maybeUser.get();
-        System.out.println(user.toString());
-        if(!user.matchPassword(password)) {
-            throw new UnAuthenticationException();
-        }
-        return user;
+        return userRepository.findByUserId(userId)
+                .filter(user -> user.matchPassword(password))
+                .orElseThrow(UnAuthenticationException::new);
 
-    }
 }

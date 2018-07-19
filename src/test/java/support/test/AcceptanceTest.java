@@ -2,12 +2,19 @@ package support.test;
 
 import codesquad.domain.User;
 import codesquad.domain.UserRepository;
+import codesquad.web.HtmlFormDataBuilder;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.http.*;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.util.MultiValueMap;
+
+import java.util.Map;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
@@ -19,6 +26,8 @@ public abstract class AcceptanceTest {
 
     @Autowired
     private UserRepository userRepository;
+
+    protected HtmlFormDataBuilder builder;
 
     public TestRestTemplate template() {
         return template;
@@ -38,5 +47,42 @@ public abstract class AcceptanceTest {
 
     protected User findByUserId(String userId) {
         return userRepository.findByUserId(userId).get();
+    }
+
+    protected HttpEntity createHttpEntity(Object body) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        return new HttpEntity(body, headers);
+    }
+
+
+    protected ResponseEntity<String> templatePostRequest(String url, Map params, String method) {
+        HttpEntity<MultiValueMap<String, Object>> request = makeRequest(method, params);
+        return template()
+                .postForEntity(url, request, String.class);
+    }
+
+    protected ResponseEntity<String> basicAuthPostRequest(String url, User user, Map params, String method) {
+        HttpEntity<MultiValueMap<String, Object>> request = makeRequest(method, params);
+        return basicAuthTemplate(user)
+                .postForEntity(url, request, String.class);
+    }
+
+    protected HttpEntity<MultiValueMap<String, Object>> makeRequest(String method, Map params) {
+        return builder
+                .method(method)
+                .addParameters(params)
+                .bulid();
+    }
+
+    protected String createResource(String path, Object body){
+        ResponseEntity<Void> response = template().postForEntity(path, body, Void.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        return response.getHeaders().getLocation().getPath();
+
+    }
+
+    protected <T> T getResource(String location, Class<T> responseType, User loginUser) {
+        return basicAuthTemplate(loginUser).getForObject(location, responseType);
     }
 }
