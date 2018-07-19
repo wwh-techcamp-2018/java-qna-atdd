@@ -9,11 +9,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import javax.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.Optional;
 
 @Service("qnaService")
 public class QnaService {
+
     private static final Logger log = LoggerFactory.getLogger(QnaService.class);
 
     @Resource(name = "questionRepository")
@@ -31,22 +33,49 @@ public class QnaService {
         return questionRepository.save(question);
     }
 
-    public Optional<Question> findById(long id) {
-        return questionRepository.findById(id);
+    public Optional<Question> findQuestionById(long id, User writer) {
+        return questionRepository.findByIdAndDeletedFalse(id).filter(question -> question.isOwner(writer));
+    }
+
+    public Optional<Question> findQuestionById(long id) {
+        return questionRepository.findByIdAndDeletedFalse(id);
+    }
+
+    public Optional<Answer> findAnswerById(long id, User writer) {
+        return answerRepository.findByIdAndDeletedFalse(id).filter(answer -> answer.isOwner(writer));
+    }
+
+    public Optional<Answer> findAnswerById(long id) {
+        return answerRepository.findByIdAndDeletedFalse(id);
     }
 
     @Transactional
     public Question update(User loginUser, long id, Question updatedQuestion) {
-        // TODO 수정 기능 구현
-        return null;
+        Question question = findQuestionById(id).orElseThrow(EntityNotFoundException::new);
+        question.update(updatedQuestion, loginUser);
+        return question;
     }
 
     @Transactional
-    public void deleteQuestion(User loginUser, long questionId) throws CannotDeleteException {
-        // TODO 삭제 기능 구현
+    public void deleteQuestion(User loginUser, long id) throws CannotDeleteException {
+        Question question = findQuestionById(id).orElseThrow(EntityNotFoundException::new);
+        question.delete(loginUser);
     }
 
-    public Iterable<Question> findAll() {
+    public Answer addAnswer(User loginUser, long questionId, String contents) {
+        Question question = findQuestionById(questionId).orElseThrow(EntityNotFoundException::new);
+        Answer newAnswer = new Answer(loginUser, contents);
+        newAnswer.setQuestion(question);
+        question.addAnswer(newAnswer);
+        return answerRepository.save(newAnswer);
+    }
+
+    public void deleteAnswer(User loginUser, long id) throws CannotDeleteException {
+        Answer answer = findAnswerById(id).orElseThrow(EntityNotFoundException::new);
+        answer.delete(loginUser);
+    }
+
+    public List<Question> findAll() {
         return questionRepository.findByDeleted(false);
     }
 
@@ -54,13 +83,4 @@ public class QnaService {
         return questionRepository.findAll(pageable).getContent();
     }
 
-    public Answer addAnswer(User loginUser, long questionId, String contents) {
-        // TODO 답변 추가 기능 구현
-        return null;
-    }
-
-    public Answer deleteAnswer(User loginUser, long id) {
-        // TODO 답변 삭제 기능 구현 
-        return null;
-    }
 }

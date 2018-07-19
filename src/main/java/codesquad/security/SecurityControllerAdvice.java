@@ -1,5 +1,6 @@
 package codesquad.security;
 
+import codesquad.CannotDeleteException;
 import codesquad.UnAuthenticationException;
 import codesquad.UnAuthorizedException;
 import org.slf4j.Logger;
@@ -13,6 +14,7 @@ import javax.persistence.EntityNotFoundException;
 
 @ControllerAdvice
 public class SecurityControllerAdvice {
+
     private static final Logger log = LoggerFactory.getLogger(SecurityControllerAdvice.class);
 
     @ExceptionHandler(EntityNotFoundException.class)
@@ -32,4 +34,11 @@ public class SecurityControllerAdvice {
     public void unAuthentication() {
         log.debug("UnAuthenticationException is happened!");
     }
+
+    @ExceptionHandler(CannotDeleteException.class)
+    @ResponseStatus(value = HttpStatus.FORBIDDEN)
+    public void cannotDelete(CannotDeleteException e) {
+        log.debug(e.getMessage());
+    }
+
 }

@@ -1,5 +1,7 @@
 package codesquad.domain;
 
+import codesquad.CannotDeleteException;
+import codesquad.UnAuthorizedException;
 import org.hibernate.annotations.Where;
 import support.domain.AbstractEntity;
 import support.domain.UrlGeneratable;
@@ -11,6 +13,7 @@ import java.util.List;
 
 @Entity
 public class Question extends AbstractEntity implements UrlGeneratable {
+
     @Size(min = 3, max = 100)
     @Column(length = 100, nullable = false)
     private String title;
@@ -23,7 +26,7 @@ public class Question extends AbstractEntity implements UrlGeneratable {
     @JoinColumn(foreignKey = @ForeignKey(name = "fk_question_writer"))
     private User writer;
 
-    @OneToMany(mappedBy = "question", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "question", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @Where(clause = "deleted = false")
     @OrderBy("id ASC")
     private List<Answer> answers = new ArrayList<>();
@@ -34,6 +37,13 @@ public class Question extends AbstractEntity implements UrlGeneratable {
     }
 
     public Question(String title, String contents) {
+        this.title = title;
+        this.contents = contents;
+    }
+
+    public Question(long id, User writer, String title, String contents) {
+        super(id);
+        this.writer = writer;
         this.title = title;
         this.contents = contents;
     }
@@ -65,7 +75,7 @@ public class Question extends AbstractEntity implements UrlGeneratable {
     }
 
     public void addAnswer(Answer answer) {
-        answer.toQuestion(this);
+        answer.setQuestion(this);
         answers.add(answer);
     }
 
@@ -77,6 +87,23 @@ public class Question extends AbstractEntity implements UrlGeneratable {
         return deleted;
     }
 
+    public boolean hasAnswer(Answer answer) {
+        return answers.contains(answer);
+    }
+
+    public void update(Question updatedQuestion, User loginUser) {
+        if (!isOwner(loginUser))
+            throw new UnAuthorizedException();
+        this.title = updatedQuestion.title;
+        this.contents = updatedQuestion.contents;
+    }
+
+    public void delete(User loginUser) throws CannotDeleteException {
+        if (!isOwner(loginUser))
+            throw new CannotDeleteException("자신의 게시글만 삭제할 수 있습니다.");
+        deleted = true;
+    }
+
     @Override
     public String generateUrl() {
         return String.format("/questions/%d", getId());
@@ -86,4 +113,5 @@ public class Question extends AbstractEntity implements UrlGeneratable {
     public String toString() {
         return "Question [id=" + getId() + ", title=" + title + ", contents=" + contents + ", writer=" + writer + "]";
     }
+
 }

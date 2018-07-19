@@ -1,5 +1,6 @@
 package codesquad.domain;
 
+import codesquad.CannotDeleteException;
 import support.domain.AbstractEntity;
 import support.domain.UrlGeneratable;
 
@@ -8,6 +9,7 @@ import javax.validation.constraints.Size;
 
 @Entity
 public class Answer extends AbstractEntity implements UrlGeneratable {
+
     @ManyToOne
     @JoinColumn(foreignKey = @ForeignKey(name = "fk_answer_writer"))
     private User writer;
@@ -23,6 +25,10 @@ public class Answer extends AbstractEntity implements UrlGeneratable {
     private boolean deleted = false;
 
     public Answer() {
+    }
+
+    public Answer(String contents) {
+        this.contents = contents;
     }
 
     public Answer(User writer, String contents) {
@@ -55,7 +61,7 @@ public class Answer extends AbstractEntity implements UrlGeneratable {
         return this;
     }
 
-    public void toQuestion(Question question) {
+    public void setQuestion(Question question) {
         this.question = question;
     }
 
@@ -67,6 +73,12 @@ public class Answer extends AbstractEntity implements UrlGeneratable {
         return deleted;
     }
 
+    public void delete(User loginUser) throws CannotDeleteException {
+        if (!isOwner(loginUser))
+            throw new CannotDeleteException("자신의 답글만 삭제할 수 있습니다.");
+        deleted = true;
+    }
+
     @Override
     public String generateUrl() {
         return String.format("%s/answers/%d", question.generateUrl(), getId());
@@ -76,4 +88,5 @@ public class Answer extends AbstractEntity implements UrlGeneratable {
     public String toString() {
         return "Answer [id=" + getId() + ", writer=" + writer + ", contents=" + contents + "]";
     }
+
 }
