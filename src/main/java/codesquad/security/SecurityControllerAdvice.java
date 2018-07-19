@@ -14,6 +14,7 @@ import javax.persistence.EntityNotFoundException;
 
 @ControllerAdvice
 public class SecurityControllerAdvice {
+
     private static final Logger log = LoggerFactory.getLogger(SecurityControllerAdvice.class);
 
     @ExceptionHandler(EntityNotFoundException.class)

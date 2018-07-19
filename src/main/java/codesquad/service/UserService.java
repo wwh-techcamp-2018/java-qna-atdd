@@ -13,6 +13,7 @@ import java.util.Optional;
 
 @Service("userService")
 public class UserService {
+
     @Resource(name = "userRepository")
     private UserRepository userRepository;
 
@@ -37,9 +38,10 @@ public class UserService {
         return userRepository.findAll();
     }
 
-    public User login(String userId, String password) throws UnAuthenticationException{
+    public User login(String userId, String password) throws UnAuthenticationException {
         return userRepository.findByUserId(userId)
                 .filter(user -> user.matchPassword(password))
                 .orElseThrow(UnAuthenticationException::new);
     }
+
 }

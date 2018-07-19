@@ -52,7 +52,7 @@ public class UserServiceTest {
 
     @Test
     public void update_success() throws Exception {
-        User updateUser = new User("sanjigi", "password", "update_name", "sanjigi@slipp.net2");
+        User updateUser = new User("sanjigi", "test", "update_name", "sanjigi@slipp.net2");
         user = userService.update(user, 2L, updateUser);
         assertThat(user.getName()).isEqualTo(updateUser.getName());
         assertThat(user.getEmail()).isEqualTo(updateUser.getEmail());
@@ -60,7 +60,7 @@ public class UserServiceTest {
 
     @Test(expected = UnAuthorizedException.class)
     public void update_failed_when_not_user() throws Exception {
-        User updateUser = new User("ksy", "password2", "update_name", "sanjigi@slipp.net2");
+        User updateUser = new User("ksy", "test", "update_name", "sanjigi@slipp.net2");
         userService.update(user, user.getId(), updateUser);
     }
 
