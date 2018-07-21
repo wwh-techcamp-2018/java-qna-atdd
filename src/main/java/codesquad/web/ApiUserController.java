@@ -1,5 +1,6 @@
 package codesquad.web;
 
+import codesquad.domain.Answer;
 import codesquad.domain.User;
 import codesquad.security.LoginUser;
 import codesquad.service.UserService;
@@ -19,12 +20,12 @@ public class ApiUserController {
     private UserService userService;
 
     @PostMapping("")
-    public ResponseEntity<Void> create(@Valid @RequestBody User user) {
+    public ResponseEntity<Answer> create(@Valid @RequestBody User user) {
         User savedUser = userService.add(user);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(URI.create("/api/users/" + savedUser.getId()));
-        return new ResponseEntity<Void>(headers, HttpStatus.CREATED);
+        return new ResponseEntity<Answer>(headers, HttpStatus.CREATED);
     }
 
     @GetMapping("{id}")

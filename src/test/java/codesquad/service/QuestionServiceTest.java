@@ -8,6 +8,7 @@ import org.assertj.core.api.Java6Assertions;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.springframework.test.context.TestPropertySource;
 
 import java.util.Optional;
 
@@ -33,12 +34,9 @@ public class QuestionServiceTest {
 //        Question questionMock = mock(Question.class);
 //
 //        when(questionRepository.findById(anyLong())).thenReturn(Optional.ofNullable(questionMock));
-//        Question question = new Question("테스트", "테스트질문1");
-//        User user = new User("sanjigi", "password", "name", "javajigi@slipp.net");
+        Question question = new Question("테스트", "테스트질문1");
+        User user = new User("sanjigi", "password", "name", "javajigi@slipp.net");
 //        when(questionRepository.findById(question.getId())).thenReturn(Optional.of(question));
-//
-//        assertThat(qnaService.create(user, questionMock)).isEqualTo(questionMock);
+        assertThat(qnaService.create(user, question).getId()).isNotNull();
     }
-
-
 }

@@ -30,10 +30,7 @@ public class ValidationExceptionControllerAdvice {
     @Resource(name = "messageSourceAccessor")
     private MessageSourceAccessor msa;
 
-    @ExceptionHandler({
-            MethodArgumentNotValidException.class
-    })
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(MethodArgumentNotValidException.class)
     public ValidationErrorsResponse handleValidationException(MethodArgumentNotValidException exception) {
         List<ObjectError> errors = exception.getBindingResult().getAllErrors();
         ValidationErrorsResponse response = new ValidationErrorsResponse();

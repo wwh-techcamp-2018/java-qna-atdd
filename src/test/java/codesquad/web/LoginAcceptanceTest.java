@@ -18,8 +18,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class LoginAcceptanceTest extends AcceptanceTest {
     private static final Logger log = LoggerFactory.getLogger(LoginAcceptanceTest.class);
-    @Autowired
-    private UserRepository userRepository;
 
     private HtmlFormDataBuilder htmlFormDataBuilder;
 
@@ -45,9 +43,6 @@ public class LoginAcceptanceTest extends AcceptanceTest {
         //hint HttpStatus.FOUND > Redirect시엔 FOUND 302 뜨는거 맞다
         log.debug("SuccessHeader!!! : {}", response.getHeaders().toString());
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FOUND);
-        //assertThat(userRepository.findByUserId(userId).isPresent()).isTrue();
-        // assertThat(response.getHeaders().containsKey("Set-Cookie")).isTrue();
-        //session 검사
         assertThat(response.getHeaders().getLocation().getPath()).startsWith("/users");
 
     }
@@ -69,8 +64,6 @@ public class LoginAcceptanceTest extends AcceptanceTest {
 
         log.debug("FailHeader@@@ : {}", response.getHeaders().toString());
         log.debug("body : {}", response.getBody());
-        //assertThat(response.getHeaders().containsKey("Set-Cookie")).isFalse();
-        //assertThat(response.getHeaders().getLocation().getPath()).startsWith("/users/login");
     }
 
     @Test

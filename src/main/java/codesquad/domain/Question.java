@@ -86,7 +86,7 @@ public class Question extends AbstractEntity implements UrlGeneratable {
 
     @Override
     public String toString() {
-        return "Question [id=" + getId() + ", title=" + title + ", contents=" + contents + ", writer=" + writer + "]";
+        return "Question [id=" + getId() + ", title=" + title + ", contents=" + contents + ", writer=" + writer +" answer size"+answers.size()+ "]";
     }
 
     @Override
@@ -105,4 +105,16 @@ public class Question extends AbstractEntity implements UrlGeneratable {
 
         return Objects.hash(super.hashCode(), title, contents, writer, answers, deleted);
     }
+
+    public Question updateData(Question dataQuestion){
+        this.title = dataQuestion.title;
+        this.contents = dataQuestion.contents;
+        return this;
+    }
+
+    public boolean isDeletable(){
+        return answers == null || answers.size() == 0;
+    }
+
+
 }

@@ -5,6 +5,7 @@ import codesquad.UnAuthorizedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -23,8 +24,11 @@ public class SecurityControllerAdvice {
 
     @ExceptionHandler(UnAuthorizedException.class)
     @ResponseStatus(value = HttpStatus.FORBIDDEN)
-    public void unAuthorized() {
+    public String unAuthorized(UnAuthorizedException exception, Model model) {
         log.debug("UnAuthorizedException is happened!");
+        log.debug("exception {}",exception.getMessage());
+        model.addAttribute("errors", exception.getMessage());
+        return "/error";
     }
 
     @ExceptionHandler(UnAuthenticationException.class)
