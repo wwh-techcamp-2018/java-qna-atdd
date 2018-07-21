@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import javax.xml.ws.http.HTTPException;
 import java.util.List;
 import java.util.Optional;
 
@@ -36,13 +35,15 @@ public class QnaService {
     public Optional<Question> findById(long id) {
         return questionRepository.findById(id);
     }
-    public Question matchWriter(long id, User loginUser){
-        Question question = findById(id).orElseThrow(() -> new CustomException("Not Found"));
-        if(!question.isOwner(loginUser)){
-            throw new UnAuthorizedException("권한이 없습니다");
+
+    public Question matchWriter(long id, User loginUser) {
+        Question question = findById(id).orElseThrow(() -> new CustomException());
+        if (!question.isOwner(loginUser)) {
+            throw new UnAuthorizedException();
         }
         return question;
     }
+
     @Transactional
     public Question update(User loginUser, long id, Question updatedQuestion) {
         Question forUpdataQuestion = matchWriter(id, loginUser);
@@ -52,8 +53,8 @@ public class QnaService {
     @Transactional
     public void deleteQuestion(User loginUser, long questionId) throws CannotDeleteException {
         Question question = matchWriter(questionId, loginUser);
-        if(!question.isDeletable())
-            throw new CannotDeleteException("글을 지울수 없네요");
+        if (!question.isDeletable())
+            throw new CannotDeleteException();
         questionRepository.delete(question);
     }
 
@@ -67,7 +68,7 @@ public class QnaService {
 
     @Transactional
     public Answer addAnswer(User loginUser, long questionId, String contents) {
-        Question question = findById(questionId).orElseThrow(() -> new CustomException("Not Found"));
+        Question question = findById(questionId).orElseThrow(() -> new CustomException());
         Answer newAnswer = new Answer(loginUser, contents);
         newAnswer.toQuestion(question);
         question.addAnswer(newAnswer);
@@ -76,14 +77,14 @@ public class QnaService {
 
     public Answer deleteAnswer(User loginUser, long id) {
         Answer targetAnswer = answerRepository.findById(id)
-                .orElseThrow(() -> new CustomException("Not Found"));
-        if(!targetAnswer.isOwner(loginUser)){
-            throw new UnAuthorizedException("권한이 없습니다");
+                .orElseThrow(() -> new CustomException());
+        if (!targetAnswer.isOwner(loginUser)) {
+            throw new UnAuthorizedException();
         }
 
 
         answerRepository.deleteById(id);
-        log.debug("question update? : {}", questionRepository.findById((long)1).get());
+        log.debug("question update? : {}", questionRepository.findById((long) 1).get());
 
         return targetAnswer;
     }

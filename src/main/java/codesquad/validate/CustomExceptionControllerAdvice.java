@@ -2,8 +2,6 @@ package codesquad.validate;
 
 import codesquad.CannotDeleteException;
 import codesquad.CustomException;
-import codesquad.UnAuthenticationException;
-import codesquad.UnAuthorizedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -44,19 +42,15 @@ public class CustomExceptionControllerAdvice {
         log.debug("BindException {}", e.getMessage());
         List<String> list = new ArrayList<String>();
         for (ObjectError objectError : errors) {
-//            log.debug("object error : {}", objectError);
-           FieldError fieldError = (FieldError) objectError;
-//            log.debug("fieldError {}", getErrorMessage(fieldError));
-//            list.add(getErrorMessage(fieldError));
+            FieldError fieldError = (FieldError) objectError;
             model.addAttribute("errors", getErrorMessage(fieldError));
         }
-//        model.addAttribute("errors", list);
         return "/error";
     }
 
     @ExceptionHandler(CannotDeleteException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public String handleCannotDeleteException(CannotDeleteException exception, Model model){
+    public String handleCannotDeleteException(CannotDeleteException exception, Model model) {
         model.addAttribute("errors", exception.getMessage());
         return "/error";
     }
@@ -79,13 +73,4 @@ public class CustomExceptionControllerAdvice {
         }
         return Optional.of(codes[0]);
     }
-//    @ExceptionHandler(MethodArgumentNotValidException.class)
-//    @ResponseStatus(HttpStatus.BAD_REQUEST)
-//    public String handleValidationException(MethodArgumentNotValidException exception, Model model) {
-//        List<ObjectError> errors = exception.getBindingResult().getAllErrors();
-//        StringBuilder response = new StringBuilder();
-//        log.debug("@Valid : {}",exception.getMessage());
-//        model.addAttribute("error", exception);
-//        return "/error";
-//    }
 }

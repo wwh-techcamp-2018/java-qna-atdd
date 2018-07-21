@@ -51,10 +51,12 @@ public abstract class AcceptanceTest {
     protected Question defaultQuestion() {
         return findByQuestionId(DEFAULT_QUESTION);
     }
+
     protected Answer defaultAnswer() {
         return findByAnswerId(DEFAULT_ANSWER);
     }
-    protected Question findByQuestionId(long id){
+
+    protected Question findByQuestionId(long id) {
         return questionRepository.findById(id).get();
     }
 

@@ -13,7 +13,7 @@ public class ApiUserAcceptanceTest extends AcceptanceTest {
     @Test
     public void create() throws Exception {
         User newUser = newUser("testuser1");
-        String location = createResource("/api/users", newUser );
+        String location = createResource("/api/users", newUser);
         User dbUser = getResource(location, User.class, findByUserId(newUser.getUserId()));
         assertThat(dbUser).isNotNull();
     }
@@ -21,7 +21,7 @@ public class ApiUserAcceptanceTest extends AcceptanceTest {
     @Test
     public void show_다른_사람() throws Exception {
         User newUser = newUser("testuser2");
-        String location = createResource("/api/users", newUser );
+        String location = createResource("/api/users", newUser);
 
         ResponseEntity<Void> response = basicAuthTemplate(defaultUser()).getForEntity(location, Void.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);

@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
-import javax.validation.Valid;
 import java.util.List;
 
 @Controller
@@ -56,14 +55,12 @@ public class UserController {
     }
 
     @PostMapping("/in")
-    public String login(String userId, String password, HttpSession session){
+    public String login(String userId, String password, HttpSession session) {
         //vaildate user
         try {
             userService.login(userId, password);
-        }
-        catch(UnAuthenticationException e) {
-            log.debug("exception msg : ----{}", e.getMessage());
-            log.debug("0909090");
+        } catch (UnAuthenticationException e) {
+            log.debug("exception msg : {}", e.getMessage());
             return "/user/login_failed";
         }
         session.setAttribute(HttpSessionUtils.USER_SESSION_KEY, userId);

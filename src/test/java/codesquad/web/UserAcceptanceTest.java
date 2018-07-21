@@ -96,26 +96,10 @@ public class UserAcceptanceTest extends AcceptanceTest {
 
     @Test
     public void update_no_login() throws Exception {
-//        ResponseEntity<String> response = update(template());
         ResponseEntity<String> response = update_formBuilder(template());
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
     }
 
-
-    private ResponseEntity<String> update(TestRestTemplate template) throws Exception {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setAccept(Arrays.asList(MediaType.TEXT_HTML));
-        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-
-        MultiValueMap<String, Object> params = new LinkedMultiValueMap<>();
-        params.add("_method", "put");
-        params.add("password", "test");
-        params.add("name", "자바지기2");
-        params.add("email", "javajigi@slipp.net");
-        HttpEntity<MultiValueMap<String, Object>> request = new HttpEntity<MultiValueMap<String, Object>>(params, headers);
-
-        return template.postForEntity(String.format("/users/%d", defaultUser().getId()), request, String.class);
-    }
 
     private ResponseEntity<String> update_formBuilder(TestRestTemplate template) throws Exception {
         HttpEntity<MultiValueMap<String, Object>> request = htmlFormDataBuilder.addParameter("_method", "put")
@@ -123,13 +107,11 @@ public class UserAcceptanceTest extends AcceptanceTest {
                 .addParameter("name", "자바지기2")
                 .addParameter("email", "javajigi@slipp.net")
                 .build();
-        //String.format("/users/%d", defaultUser().getId())
         return template.postForEntity(String.format("/users/%d", defaultUser().getId()), request, String.class);
     }
 
     @Test
     public void update() throws Exception {
-//        ResponseEntity<String> response = update(basicAuthTemplate());
         ResponseEntity<String> response = update_formBuilder(basicAuthTemplate());
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FOUND);
         assertThat(response.getHeaders().getLocation().getPath()).startsWith("/users");

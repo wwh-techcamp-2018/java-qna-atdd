@@ -26,7 +26,7 @@ public class SecurityControllerAdvice {
     @ResponseStatus(value = HttpStatus.FORBIDDEN)
     public String unAuthorized(UnAuthorizedException exception, Model model) {
         log.debug("UnAuthorizedException is happened!");
-        log.debug("exception {}",exception.getMessage());
+        log.debug("exception {}", exception.getMessage());
         model.addAttribute("errors", exception.getMessage());
         return "/error";
     }
