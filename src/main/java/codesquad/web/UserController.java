@@ -1,6 +1,8 @@
 package codesquad.web;
 
+import codesquad.UnAuthenticationException;
 import codesquad.domain.User;
+import codesquad.security.HttpSessionUtils;
 import codesquad.security.LoginUser;
 import codesquad.service.UserService;
 import org.slf4j.Logger;
@@ -10,6 +12,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpSession;
 import java.util.List;
 
 @Controller
@@ -49,6 +52,22 @@ public class UserController {
     public String update(@LoginUser User loginUser, @PathVariable long id, User target) {
         userService.update(loginUser, id, target);
         return "redirect:/users";
+    }
+
+    @PostMapping("/in")
+    public String login(String userId, String password, HttpSession session) {
+        //vaildate user
+        try {
+            userService.login(userId, password);
+        } catch (UnAuthenticationException e) {
+            log.debug("exception msg : {}", e.getMessage());
+            return "/user/login_failed";
+        }
+        session.setAttribute(HttpSessionUtils.USER_SESSION_KEY, userId);
+        return "redirect:/users";
+        //if valid, save session
+        // else - 로긴 실패 templates/user 디렉토리의 login_failed.html을 응답
+
     }
 
 }

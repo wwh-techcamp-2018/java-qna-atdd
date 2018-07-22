@@ -2,9 +2,10 @@ package codesquad;
 
 public class UnAuthorizedException extends RuntimeException {
     private static final long serialVersionUID = 1L;
+    public final static String DEFAULT_MESSAGE = "권한이 없습니다.";
 
     public UnAuthorizedException() {
-        super();
+        super(DEFAULT_MESSAGE);
     }
 
     public UnAuthorizedException(String message, Throwable cause, boolean enableSuppression,
